@@ -93,4 +93,11 @@
     script.dataset.directorUx = '1';
     document.head.appendChild(script);
   }
+  if (file === 'live-action.html' && !document.querySelector('script[data-live-ux]')) {
+    const script = document.createElement('script');
+    script.src = 'live-ux.js';
+    script.defer = true;
+    script.dataset.liveUx = '1';
+    document.head.appendChild(script);
+  }
 })();
