@@ -19,17 +19,27 @@
     ].map((x,i)=>`<div class="revisionStep ${tone(x[2],x[3],x[4])}"><small>0${i+1}</small><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
 
     if(file==='post.html'){
-      const main=$('.appMain'),side=$('.sidePanel');
+      const side=$('.sidePanel');
       const anchor=$('.productionBoundary')||$('.lineage');
       if(anchor&&!$('.revisionCycle')){const rail=document.createElement('section');rail.className='revisionCycle';anchor.insertAdjacentElement('afterend',rail);}
       const feedbackSection=$$('.appMain section').find(sec=>$('.eyebrow',sec)?.textContent.includes('FEEDBACK'));
       if(feedbackSection&&!$('#revisionAction')){const action=document.createElement('div');action.id='revisionAction';action.className='revisionAction';feedbackSection.insertAdjacentElement('beforebegin',action);}
       const postButtons=$('.postButtons',side);
-      if(postButtons&&!$('#submitV3Btn')){const b=document.createElement('button');b.id='submitV3Btn';b.className='btn blue';b.textContent='提交 V3 给客户审阅 →';postButtons.insertAdjacentElement('afterbegin',b);b.addEventListener('click',()=>{const s=state();if(!s.workingComposite||s.v3Submitted)return;set({v3Submitted:true,v3SubmittedAt:new Date().toISOString(),v3ChangesRequested:false,v3ChangesAt:null,v4Draft:false,v4Submitted:false,v4ChangesRequested:false,feedbackResolvedItems:[false,false,false],newClientFeedback:0});toast('V3 已正式提交 Client Review Space');setTimeout(()=>location.href='review.html?stage=versions',420);});}
+      if(postButtons&&!$('#submitV3Btn')){
+        const b=document.createElement('button');b.id='submitV3Btn';b.className='btn blue';b.textContent='提交 V3 给客户审阅 →';postButtons.insertAdjacentElement('afterbegin',b);
+        b.addEventListener('click',()=>{const s=state();if(!s.workingComposite||s.v3Submitted)return;set({v3Submitted:true,v3SubmittedAt:new Date().toISOString(),v3ChangesRequested:false,v3ChangesAt:null,v4Draft:false,v4Submitted:false,v4SubmittedAt:null,v4ChangesRequested:false,feedbackResolvedItems:[false,false,false],newClientFeedback:0});toast('V3 已正式提交 Client Review Space');setTimeout(()=>location.href='review.html?stage=versions',420);});
+      }
       const formalBlock=$$('.stateBlock',side).find(x=>$('b',x)?.textContent.includes('当前正式 Version'))?.querySelector('span');
       const render=()=>{
         const s=state(),rail=$('.revisionCycle');if(rail)rail.innerHTML=cycleHTML(s);
         document.body.classList.toggle('waitingV3Decision',!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval));
+        const route=$('.productionRoute');
+        if(route){
+          const outputTitle=s.approval?`${s.approvedVersion||'V4'} · Approved`:s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':s.workingComposite?'Formal Version · V3':'Formal Version';
+          const outputSub=s.approval?'Version Approval 已形成':s.v4Submitted?'正式 Version 已进入客户决策':s.v4Draft?'下一版草稿 · 尚未客户可见':s.v3ChangesRequested?'3 条反馈进入 Revision':s.v3Submitted?'等待客户决策':'Composite 不是 Version';
+          const workTitle=s.workingComposite?'Working Composite · Created':'Working Composite';
+          route.innerHTML=`<div class="productionRouteCell ${s.genAsset?'done':'current'}"><small>01 · INPUT</small><b>${s.genAsset?'Production Assets · Ready':'Waiting for Selected Asset'}</b><span>Live Action + AIGC + CG/Post</span></div><div class="productionRouteCell ${s.workingComposite?'done':s.genAsset?'current':'locked'}"><small>02 · WORK</small><b>${workTitle}</b><span>内部工作状态 · 客户不可见</span></div><div class="productionRouteCell ${s.approval||s.v4Submitted?'done':s.v4Draft||s.v3Submitted?'current':'locked'}"><small>03 · OUTPUT</small><b>${outputTitle}</b><span>${outputSub}</span></div>`;
+        }
         const submitV3=$('#submitV3Btn');
         if(submitV3){submitV3.disabled=!s.workingComposite||s.v3Submitted||!!s.approval;submitV3.textContent=s.approval&&s.approvedVersion==='V3'?'V3 已确认 ✓':s.v3ChangesRequested?'V3 · Changes Requested ✓':s.v3Submitted?'V3 · In Review ✓':'提交 V3 给客户审阅 →';}
         if(formalBlock)formalBlock.textContent=s.approval?`${s.approvedVersion||'V4'} · Approved`:s.v4Submitted?'V4 · In Review':s.v4Draft?'V3 · Changes Requested → V4 Draft':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':s.workingComposite?'尚未提交正式 Version':'尚未进入 Version Revision';
@@ -46,16 +56,15 @@
         }
         if(feedbackSection)feedbackSection.style.display=s.v3ChangesRequested&&!s.approval&&s.approvedVersion!=='V3'?'':'none';
         const draft=$('#draftBtn');if(draft&&!s.v3ChangesRequested){draft.disabled=true;draft.textContent='等待 V3 修改请求';}
-        const submit=$('#submitBtn');if(submit&&!s.v4Draft){submit.disabled=true;}
+        const submit=$('#submitBtn');if(submit&&!s.v4Draft)submit.disabled=true;
       };
-      render();window.addEventListener('reelops:state',()=>setTimeout(render,0));
+      render();window.addEventListener('reelops:state',()=>setTimeout(render,0));setTimeout(render,90);
     }
 
     if(file==='review.html'){
-      const stage=$('#versionsStage'),main=$('.appMain',stage),side=$('.sidePanel',stage),hero=$('.reviewHero',stage);
+      const stage=$('#versionsStage'),hero=$('.reviewHero',stage),content=$('#versionContent');
       if(hero&&!$('.revisionCycle',stage)){const rail=document.createElement('section');rail.className='revisionCycle';hero.insertAdjacentElement('afterend',rail);}
-      const content=$('#versionContent');
-      if(content&&!$('#v3DecisionPanel')){const first=$(':scope > .panel',content)||content.firstElementChild;const panel=document.createElement('section');panel.id='v3DecisionPanel';panel.className='v3DecisionPanel';panel.innerHTML='<div class="k">V3 · FIRST FORMAL REVIEW</div><h3>这是本轮 Revision Cycle 的起点。</h3><p>客户可以直接确认 V3，或者明确提出修改。只有“需要修改”发生后，后期才会收到正式 Feedback 并进入 V4。</p><div class="v3FeedbackPreview"><div><b>00:12</b><span>主体提前一点进入</span></div><div><b>00:18</b><span>背景层次再弱一点</span></div><div><b>00:24</b><span>产品高光保留现在这版</span></div></div><div class="revisionCycleNote">上面 3 条是本演示在“需要修改”后创建的明确反馈，不会在客户决策之前提前进入后期。</div>';first?.insertAdjacentElement('afterend',panel);}
+      if(content&&!$('#v3DecisionPanel')){const first=$(':scope > .panel',content)||content.firstElementChild;const panel=document.createElement('section');panel.id='v3DecisionPanel';panel.className='v3DecisionPanel';first?.insertAdjacentElement('afterend',panel);}
       const approve=$('#approve'),changes=$('#changes');
       if(changes)changes.addEventListener('click',e=>{
         const s=state();
@@ -69,13 +78,17 @@
       },true);
       const render=()=>{
         const s=state(),rail=$('.revisionCycle',stage);if(rail)rail.innerHTML=cycleHTML(s);
-        const v3Active=!!(s.v3Submitted&&!s.v4Submitted&&!s.v4ChangesRequested&&(s.v3ChangesRequested||!s.approval||s.approvedVersion==='V3'));
-        document.body.classList.toggle('v3ReviewActive',v3Active&&!s.v3ChangesRequested&&!s.approval);
-        document.body.classList.toggle('v3ChangesRecorded',!!(s.v3ChangesRequested&&!s.v4Submitted&&!s.approval));
+        const v3Pending=!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted&&!s.approval);
+        const v3Changes=!!(s.v3ChangesRequested&&!s.v4Submitted&&!s.approval);
+        document.body.classList.toggle('v3ReviewActive',v3Pending);
+        document.body.classList.toggle('v3ChangesRecorded',v3Changes);
         const published=!!(s.v3Submitted||s.v4Submitted||s.approval);
-        $('#versionLocked').style.display=published?'none':'block';
-        if(content)content.style.opacity=published?'1':'.35';
-        const panel=$('#v3DecisionPanel');if(panel)panel.style.display=(s.v3Submitted&&!s.v4Submitted)?'block':'none';
+        $('#versionLocked').style.display=published?'none':'block';if(content)content.style.opacity=published?'1':'.35';
+        const panel=$('#v3DecisionPanel');
+        if(panel){
+          panel.style.display=(s.v3Submitted&&!s.v4Submitted)?'block':'none';
+          panel.innerHTML=v3Changes?'<div class="k">V3 · CHANGES REQUESTED</div><h3>本轮修改已经成为正式生产输入。</h3><p>下面 3 条反馈现在才进入 Post，并且都绑定 SHOT 08 · V3。</p><div class="v3FeedbackPreview"><div><b>00:12</b><span>主体提前一点进入</span></div><div><b>00:18</b><span>背景层次再弱一点</span></div><div><b>00:24</b><span>产品高光保留现在这版</span></div></div><div class="revisionCycleNote">下一步由 Post 逐条处理，再形成 V4 Draft。</div>':'<div class="k">V3 · FIRST FORMAL REVIEW</div><h3>这是本轮 Revision Cycle 的起点。</h3><p>你可以直接确认 V3，或者明确提出修改。只有“需要修改”发生后，后期才会收到正式 Feedback 并进入 V4。</p><div class="revisionCycleNote">此刻 Post 还没有任何 V3 修改任务；系统不会预先制造客户反馈。</div>';
+        }
         if(s.approval){
           const v=s.approvedVersion||'V4';$('#reviewTitle').textContent=`${v} · 已确认`;$('#reviewVersion').textContent=`SHOT 08 · ${v} · Approved`;$('#versionStageState').textContent='· 已确认';if(approve){approve.disabled=true;approve.textContent=`${v} 已确认 ✓`;}if(changes)changes.disabled=true;$('#deliveryLink').style.display='inline-flex';
         }else if(s.v4Submitted){
@@ -88,8 +101,16 @@
           $('#reviewTitle').textContent='等待正式版本';$('#reviewVersion').textContent='尚未提交';$('#versionStageState').textContent='· 待开始';if(approve)approve.disabled=true;if(changes)changes.disabled=true;
         }
         const feedback=$('#feedbackForm');if(feedback){const foot=$('.composerFoot .small',feedback);if(foot)foot.textContent=s.v4Submitted?'反馈将绑定 V4 · 00:12':s.v3Submitted?'反馈将绑定 V3 · 当前审阅':'等待正式 Version';}
+        const banner=$('#versionsStage .clientDecisionBanner');
+        if(banner){
+          const v=s.approval?(s.approvedVersion||'V4'):s.v4Submitted?'V4':s.v3Submitted?'V3':null;
+          banner.className='clientDecisionBanner '+(s.approval?'approved':v3Changes?'changes':'');
+          banner.innerHTML=s.approval?`<div><small>YOUR DECISION · SHOT 08 · ${v}</small><b>${v} 已确认</b><p>Version Approval 已形成独立记录；下一步进入 Final Master 与 Delivery。</p></div><span class="clientDecisionStatus">APPROVED</span>`:v3Changes?'<div><small>YOUR DECISION · SHOT 08 · V3</small><b>已要求修改</b><p>3 条反馈已绑定 V3，并同步回 Post。V4 尚未出现。</p></div><span class="clientDecisionStatus">CHANGES REQUESTED</span>':v?`<div><small>YOUR DECISION · SHOT 08 · ${v}</small><b>确认当前正式版本，或提出具体修改</b><p>${v==='V3'?'如果要求修改，反馈将成为下一版 V4 的生产输入。':'当前是修订后的 V4；确认后创建独立 Version Approval。'}</p></div><span class="clientDecisionStatus">DECISION REQUIRED</span>`:'<div><small>YOUR DECISION</small><b>等待正式 Version</b><p>Working Composite 与内部测试不会进入客户空间。</p></div><span class="clientDecisionStatus">WAITING</span>';
+        }
+        const receipt=$('#versionReceipt');
+        if(receipt&&s.approval){const v=s.approvedVersion||'V4';receipt.className='reviewDecisionReceipt';receipt.innerHTML=`<small>VERSION APPROVAL RECORD</small><b>SHOT 08 · ${v} · Approved</b><span>${fmt(s.approvalAt)} · 该 Approval Record 独立于 ${v} Version 对象。</span>`;}
       };
-      const sync=()=>setTimeout(render,0);render();window.addEventListener('reelops:state',sync);setTimeout(render,80);
+      const sync=()=>setTimeout(render,0);render();window.addEventListener('reelops:state',sync);setTimeout(render,120);
     }
 
     if(file==='delivery.html'){
@@ -99,7 +120,7 @@
         const vs=$('#versionState');if(vs)vs.textContent=`SHOT 08 · ${v} · Approved`;
         ['#approvalArea','#masterArea','#deliveryRail','.deliveryTruth'].forEach(sel=>replaceText($(sel),'V4',v));
       };
-      render();window.addEventListener('reelops:state',()=>setTimeout(render,0));setTimeout(render,100);
+      render();window.addEventListener('reelops:state',()=>setTimeout(render,0));setTimeout(render,140);
     }
   });
 })();
