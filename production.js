@@ -42,14 +42,11 @@
         if(shootState)shootState.textContent=!s.creativeApproval?'技术准备 / 示例素材':s.captureComplete?'主体拍摄完成':'正式拍摄准备中';
         gate.className='productionGateStrip '+(s.creativeApproval?'good':'');
         gate.innerHTML=s.creativeApproval?'<span class="dot"></span><div><b>Creative Approval 已锁定</b><span>现在可以把 AI Ready 素材正式交接给 AIGC。</span></div><a href="director.html">查看已确认方向 →</a>':'<span class="dot"></span><div><b>当前仅允许技术准备</b><span>可以检查 AI Ready，但正式 AI 制作包必须等待客户确认 Creative Direction。</span></div><a href="review.html?stage=creative">去创意审阅 →</a>';
-        if(packageBtn){
-          packageBtn.disabled=!(s.creativeApproval&&s.aiReady)||s.packageSent;
-          packageBtn.textContent=s.packageSent?'AI 制作包已发送 ✓':!s.creativeApproval?'等待 Creative Approval':s.aiReady?'生成 AI 制作包 →':'补齐 AI Ready 后生成';
-        }
+        if(packageBtn){packageBtn.disabled=!(s.creativeApproval&&s.aiReady)||s.packageSent;packageBtn.textContent=s.packageSent?'AI 制作包已发送 ✓':!s.creativeApproval?'等待 Creative Approval':s.aiReady?'生成 AI 制作包 →':'补齐 AI Ready 后生成';}
         if(packageEl)packageEl.style.display=(s.creativeApproval&&s.aiReady)||s.packageSent?'block':'none';
         if(sendBtn){sendBtn.style.pointerEvents=(s.creativeApproval&&s.aiReady)?'auto':'none';sendBtn.style.opacity=(s.creativeApproval&&s.aiReady)?'1':'.45';}
       };
-      if(packageBtn)packageBtn.addEventListener('click',e=>{const s=state();if(!(s.creativeApproval&&s.aiReady)){e.preventDefault();e.stopImmediatePropagation();render();}} ,true);
+      if(packageBtn)packageBtn.addEventListener('click',e=>{const s=state();if(!(s.creativeApproval&&s.aiReady)){e.preventDefault();e.stopImmediatePropagation();render();}},true);
       if(sendBtn)sendBtn.addEventListener('click',e=>{const s=state();if(!(s.creativeApproval&&s.aiReady)){e.preventDefault();e.stopImmediatePropagation();return;}window.ReelOpsState.set({packageSent:true});},true);
       ['tracking','camera'].forEach(id=>$('#'+id)?.addEventListener('change',()=>setTimeout(render,0)));
       render();window.addEventListener('reelops:state',render);
@@ -80,6 +77,7 @@
       const locked=document.createElement('div');locked.className='productionLockedMessage';locked.innerHTML='<b>Post Revision 尚未开始。</b><p>先从 AIGC / Capture 获得正式 Selected Asset。只有进入 SHOT 08 Assets 的素材，才能建立 Working Composite 并处理版本修改。</p>';
       if(feedbackSection)feedbackSection.insertAdjacentElement('beforebegin',locked);
       const formalBlock=$$('.stateBlock',$('.sidePanel')).find(x=>$('b',x)?.textContent.includes('当前正式 Version'))?.querySelector('span');
+      const liveLineage=$('.lineage .lineageCard:first-child'),aigcLineage=$('#aigcLineage');
       const render=()=>{
         const s=state(),hasAsset=!!s.genAsset,res=s.feedbackResolved||0;
         document.body.classList.toggle('preAsset',!hasAsset);
@@ -91,6 +89,8 @@
         setBoundary('这一页负责把不同来源的 Asset 变成可审阅的正式 Version。','CLIENT VISIBLE · 仅正式提交的 Version');
         if(feedbackSection)feedbackSection.style.display=hasAsset?'':'none';locked.style.display=hasAsset?'none':'block';
         if(formalBlock)formalBlock.textContent=hasAsset?'V3 · Changes Requested':'尚未进入 Version Revision';
+        if(liveLineage){liveLineage.className='lineageCard '+(s.captureComplete?'ready':'locked');const desc=liveLineage.querySelector('span');if(desc)desc.textContent=s.captureComplete?'人物主体 / 产品 / 摄影机运动':'等待正式 Capture Asset';}
+        if(aigcLineage)aigcLineage.className='lineageCard '+(s.genAsset?'ready':s.packageSent?'current':'locked');
       };
       render();window.addEventListener('reelops:state',render);
     }
