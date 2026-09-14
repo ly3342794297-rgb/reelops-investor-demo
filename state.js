@@ -60,4 +60,19 @@
     return `Creative Direction ${s.creativeVersion} · Internal Draft`;
   }
   window.ReelOpsState = {get: read, set: write, reset, shotLabel, creativeLabel, key: KEY};
+
+  if (!document.querySelector('link[data-reelops-polish]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'polish.css';
+    link.dataset.reelopsPolish = '1';
+    document.head.appendChild(link);
+  }
+  if (!document.querySelector('script[data-reelops-polish]')) {
+    const script = document.createElement('script');
+    script.src = 'polish.js';
+    script.defer = true;
+    script.dataset.reelopsPolish = '1';
+    document.head.appendChild(script);
+  }
 })();
