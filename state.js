@@ -21,6 +21,7 @@
     captureComplete: false,
     packageSent: false,
     genAsset: false,
+    workingComposite: false,
     v4Draft: false,
     feedbackResolved: 0,
     v4Submitted: false,
@@ -51,6 +52,7 @@
     if (s.approval) return 'V4 · Approved';
     if (s.v4Submitted) return 'V4 · In Review';
     if (s.v4Draft) return 'V4 Draft';
+    if (s.workingComposite) return 'Working Composite';
     return 'V3 · Changes Requested';
   }
   function creativeLabel(s=read()){
@@ -64,7 +66,7 @@
     if (s.delivered) return 'Delivered';
     if (s.approval) return 'Delivery';
     if (s.v4Submitted) return 'Version Review';
-    if (s.v4Draft || s.genAsset) return 'Post-production';
+    if (s.v4Draft || s.workingComposite || s.genAsset) return 'Post-production';
     if (s.packageSent || s.aiReady || s.creativeApproval) return 'Production';
     if (s.creativeSubmitted || s.creativeChangesRequested) return 'Creative Review';
     return 'Pre-production';
