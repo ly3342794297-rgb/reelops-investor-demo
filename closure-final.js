@@ -20,10 +20,14 @@
       const cReceipt=ensureReceipt(creativeSide,'creativeReceipt'),vReceipt=ensureReceipt(versionSide,'versionReceipt');
       const creativeSubtitle=$('#creativeStage .reviewHero .small');
       const versionSubtitle=$('#versionsStage .reviewHero .small');
+      const reviewTitle=$('#reviewTitle'),reviewVersion=$('#reviewVersion'),versionStageState=$('#versionStageState');
       const render=()=>{
         const s=state();
         if(creativeSubtitle)creativeSubtitle.textContent=s.creativeApproval?'Creative Approval 已记录 · 成片仍需单独确认':s.creativeSubmitted?'Brief → Treatment → Storyboard → Shot Direction → 客户决策':'尚未发布 · 客户空间不会显示内部草稿';
         if(versionSubtitle)versionSubtitle.textContent=s.approval?'Version Approval 已记录 · 下一步 Final Master / Delivery':s.v4Submitted?`${s.feedbackResolved||0} / 3 上一轮反馈已处理 · 当前 V4 正式审阅`:'正式 Version 尚未提交 · Working Composite 对客户不可见';
+        if(reviewTitle)reviewTitle.textContent=s.approval?'V4 · 已确认':s.v4Submitted?'V4 · 待客户确认':'成片审阅 · 等待正式版本';
+        if(reviewVersion)reviewVersion.textContent=s.approval?'SHOT 08 · V4 · Approved':s.v4Submitted?'SHOT 08 · V4 · In Review':'暂无正式提交版本';
+        if(versionStageState)versionStageState.textContent=s.approval?'· 已确认':s.v4Submitted?'· 待确认':'· 未提交';
         if(cReceipt){cReceipt.className='reviewDecisionReceipt '+(s.creativeApproval?'':'pending');cReceipt.innerHTML=s.creativeApproval?`<small>CREATIVE APPROVAL RECORD</small><b>${s.creativeVersion||'V2'} · Approved</b><span>${fmt(s.creativeApprovalAt)} · 制作方向已锁定；这不是 Version Approval。</span>`:`<small>CREATIVE DECISION</small><b>${s.creativeSubmitted?'等待客户确认':'等待导演发布'}</b><span>${s.creativeSubmitted?'确认或要求修改，都会形成明确决策状态。':'内部草稿不会自动进入客户空间。'}</span>`;}
         if(vReceipt){vReceipt.className='reviewDecisionReceipt '+(s.approval?'':'pending');vReceipt.innerHTML=s.approval?`<small>VERSION APPROVAL RECORD</small><b>SHOT 08 · V4 · Approved</b><span>${fmt(s.approvalAt)} · 该记录独立于 V4 Version 对象。</span>`:`<small>VERSION DECISION</small><b>${s.v4Submitted?'等待客户确认 V4':'等待后期正式提交'}</b><span>${s.v4Submitted?'客户可确认或提出修改；反馈绑定当前正式 Version。':'内部 Composite 与测试版本不会显示。'}</span>`;}
         const creativeActions=$('#creativeStage .reviewActions'),versionActions=$('#versionsStage .reviewActions');
