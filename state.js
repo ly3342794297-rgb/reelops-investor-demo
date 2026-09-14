@@ -53,6 +53,10 @@
     if (patch.feedbackResolvedItems) {
       next.feedbackResolvedItems = [...patch.feedbackResolvedItems];
       next.feedbackResolved = next.feedbackResolvedItems.filter(Boolean).length;
+    } else if (Object.prototype.hasOwnProperty.call(patch,'feedbackResolved')) {
+      const n = Math.max(0,Math.min(3,Number(patch.feedbackResolved)||0));
+      next.feedbackResolvedItems = [0,1,2].map(i=>i<n);
+      next.feedbackResolved = n;
     }
     localStorage.setItem(KEY, JSON.stringify(next));
     window.dispatchEvent(new CustomEvent('reelops:state', {detail: next}));
