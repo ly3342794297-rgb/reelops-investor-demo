@@ -4,7 +4,6 @@
     const qs=new URLSearchParams(location.search);
     const allowed=['project.html','studio.html','producer.html','director.html','live-action.html','generation.html','post.html','review.html','delivery.html'];
     if(!allowed.includes(file))return;
-
     const DEMO_KEY='reelops_investor_demo_mode';
     const isEntry=file==='project.html';
     if(qs.get('demo')==='1')sessionStorage.setItem(DEMO_KEY,'1');
@@ -13,12 +12,11 @@
 
     const chapters=[
       {n:1,k:'PROJECT TRUTH',title:'先讲项目，而不是功能。',point:'ReelOps 先回答项目现在在哪里、谁要动作、哪些确认还没闭环。',files:['project.html','studio.html','producer.html']},
-      {n:2,k:'CREATIVE DECISION',title:'客户确认创意，但不进入导演后台。',point:'内部 Director Workspace 很复杂；客户只看到发布后的 Brief、Treatment、Storyboard 与 Shot Direction。',files:['director.html']},
+      {n:2,k:'CREATIVE DECISION',title:'客户确认创意，但不进入导演后台。',point:'内部 Director Workspace 可以复杂；客户只看到明确发布的 Brief、Treatment、Storyboard 与 Shot Direction。',files:['director.html']},
       {n:3,k:'HYBRID PRODUCTION',title:'实拍与 AI 是同一个 Shot 的不同生产来源。',point:'AI Ready → Generation Job → Variant → Selected Asset。ReelOps 不把生成结果直接叫 Version。',files:['live-action.html','generation.html']},
-      {n:4,k:'VERSION RECORD',title:'Working Composite 不是正式版本。',point:'Asset → Working Composite → V4 Draft → V4 In Review → Version Approval。',files:['post.html','review.html']},
+      {n:4,k:'VERSION REVISION CYCLE',title:'正式版本、反馈和下一版必须按时间发生。',point:'Working Composite → V3 Submitted → Changes Requested → Feedback Resolved → V4 Draft → V4 In Review → Version Approval。',files:['post.html','review.html']},
       {n:5,k:'DELIVERY CLOSURE',title:'Approved 之后，项目仍然没有结束。',point:'Final Master → Deliverables → Delivery Record → Archive，项目才真正闭环。',files:['delivery.html']}
     ];
-
     function state(){try{return window.ReelOpsState?.get?.()||{}}catch(e){return {}}}
     function reviewStage(){return qs.get('stage')==='creative'?'creative':'versions'}
     function currentChapter(){if(file==='review.html')return reviewStage()==='creative'?chapters[1]:chapters[3];return chapters.find(c=>c.files.includes(file))||chapters[0]}
@@ -29,15 +27,27 @@
       if(file==='review.html'&&reviewStage()==='creative')return {href:'live-action.html?demo=1',label:'进入实拍 + AI →',ready:!!s.creativeApproval,need:'先点击「确认创意方向」，创建 Creative Approval Record。'};
       if(file==='live-action.html')return {href:'generation.html?demo=1',label:'进入 AIGC 制作 →',ready:!!s.packageSent,need:'先补齐 AI Ready，并把 SHOT 08 AI 制作包发送给 AIGC。'};
       if(file==='generation.html')return {href:'post.html?demo=1',label:'进入后期制作 →',ready:!!s.genAsset,need:'先选择 Variant，并明确加入 SHOT 08 Assets。'};
-      if(file==='post.html')return {href:'review.html?stage=versions&demo=1',label:'进入客户成片审阅 →',ready:!!s.v4Submitted,need:'先建立 Working Composite、处理反馈、生成 V4 Draft，再正式提交 V4。'};
-      if(file==='review.html'&&reviewStage()==='versions')return {href:'delivery.html?demo=1',label:'进入交付与归档 →',ready:!!s.approval,need:'先点击「确认 V4」，创建独立 Version Approval Record。'};
+      if(file==='post.html'){
+        if(s.approval)return {href:'delivery.html?demo=1',label:'进入交付与归档 →',ready:true,need:''};
+        if(!s.workingComposite)return {href:'#',label:'',ready:false,need:'先把 Live Action / AIGC / CG-Post Assets 建立为 Working Composite。'};
+        if(!s.v3Submitted)return {href:'review.html?stage=versions&demo=1',label:'进入 V3 客户审阅 →',ready:false,need:'下一步不是直接处理反馈，而是先正式提交 V3。'};
+        if(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted)return {href:'review.html?stage=versions&demo=1',label:'进入 V3 客户审阅 →',ready:true,need:''};
+        if(s.v3ChangesRequested&&!s.v4Submitted)return {href:'review.html?stage=versions&demo=1',label:'提交 V4 后进入客户审阅 →',ready:false,need:(s.feedbackResolved||0)<3?'先逐条闭合 V3 的 3 条正式反馈。':!s.v4Draft?'反馈已闭合，生成 V4 Draft。':'最后正式提交 V4。'};
+        if(s.v4Submitted)return {href:'review.html?stage=versions&demo=1',label:'进入 V4 客户审阅 →',ready:true,need:''};
+      }
+      if(file==='review.html'&&reviewStage()==='versions'){
+        if(s.approval)return {href:'delivery.html?demo=1',label:'进入交付与归档 →',ready:true,need:''};
+        if(s.v4Submitted)return {href:'delivery.html?demo=1',label:'确认后进入交付 →',ready:false,need:'当前是 V4 正式审阅。点击「确认 V4」创建独立 Version Approval Record。'};
+        if(s.v3ChangesRequested)return {href:'post.html?demo=1',label:'回到 Post 处理 V3 反馈 →',ready:true,need:''};
+        if(s.v3Submitted)return {href:'post.html?demo=1',label:'提出修改后回到 Post →',ready:false,need:'当前是 V3 正式审阅。演示路径点击「需要修改」，系统才会创建 3 条 V3 Feedback。'};
+        return {href:'post.html?demo=1',label:'返回 Post',ready:false,need:'还没有正式提交任何 Version。'};
+      }
       if(file==='delivery.html')return {href:'project.html?demo=1',label:'回到 Project Overview',ready:!!s.archived,need:'完成 Final Master、Deliverables、Delivery Record 与 Archive。'};
       return {href:'project.html?demo=1',label:'回到 Project',ready:true,need:''};
     }
 
     const launch=document.createElement('button');launch.className='demoLaunch';launch.type='button';launch.textContent=enabled?'投资人演示':'开启投资人演示';
     const guide=document.createElement('aside');guide.className='demoGuide';guide.setAttribute('aria-label','投资人演示讲解');document.body.append(launch,guide);
-
     function clearTarget(){document.querySelectorAll('.demoTarget').forEach(e=>e.classList.remove('demoTarget'))}
     function mark(el){if(el&&!el.disabled)el.classList.add('demoTarget')}
     function markNextTarget(){
@@ -46,29 +56,24 @@
       if(file==='studio.html'||file==='producer.html'){mark(document.querySelector('a[href="director.html"]'));return}
       if(file==='director.html'&&!s.creativeSubmitted){mark(document.querySelector('#submitCreative'));return}
       if(file==='review.html'&&reviewStage()==='creative'&&!s.creativeApproval){mark(document.querySelector('#creativeApprove'));return}
-      if(file==='live-action.html'&&!s.packageSent){
-        if(!s.aiReady){mark(document.querySelector('#tracking:not(:checked)')?.closest('.checkCard')||document.querySelector('#camera:not(:checked)')?.closest('.checkCard'));return}
-        mark(document.querySelector('#packageBtn:not(:disabled)')||document.querySelector('#sendBtn'));return;
-      }
+      if(file==='live-action.html'&&!s.packageSent){if(!s.aiReady){mark(document.querySelector('#tracking:not(:checked)')?.closest('.checkCard')||document.querySelector('#camera:not(:checked)')?.closest('.checkCard'));return}mark(document.querySelector('#packageBtn:not(:disabled)')||document.querySelector('#sendBtn'));return}
       if(file==='generation.html'&&!s.genAsset){mark(document.querySelector('#addAsset'));return}
-      if(file==='post.html'&&!s.v4Submitted){
+      if(file==='post.html'&&!s.approval){
         if(!s.workingComposite){mark(document.querySelector('#compositeBtn'));return}
-        if((s.feedbackResolved||0)<3){mark([...document.querySelectorAll('.resolve')].find(b=>!b.disabled));return}
-        if(!s.v4Draft){mark(document.querySelector('#draftBtn'));return}
-        mark(document.querySelector('#submitBtn'));return;
+        if(!s.v3Submitted){mark(document.querySelector('#submitV3Btn')||document.querySelector('[data-rev-submit]'));return}
+        if(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted){mark(document.querySelector('#revisionAction a[href*="review"]'));return}
+        if(s.v3ChangesRequested&&(s.feedbackResolved||0)<3){mark([...document.querySelectorAll('.resolve')].find(b=>!b.disabled));return}
+        if(s.v3ChangesRequested&&!s.v4Draft){mark(document.querySelector('#draftBtn'));return}
+        if(s.v4Draft&&!s.v4Submitted){mark(document.querySelector('#submitBtn'));return}
       }
-      if(file==='review.html'&&reviewStage()==='versions'&&!s.approval){mark(document.querySelector('#approve'));return}
-      if(file==='delivery.html'&&!s.archived){
-        if(!s.finalMasterReady){mark(document.querySelector('#createMaster'));return}
-        if((s.deliveryItems||[]).some(v=>!v)){mark(document.querySelector('.rowBtn:not(:disabled)')||document.querySelector('#standardSet:not(:disabled)'));return}
-        if(!s.deliveryRecord){mark(document.querySelector('#createDeliveryRecord')||document.querySelector('#completeDelivery')||document.querySelector('[data-action="deliver"]'));return}
-        mark(document.querySelector('#archiveProject')||document.querySelector('[data-action="archive"]'));return;
+      if(file==='review.html'&&reviewStage()==='versions'&&!s.approval){
+        if(s.v4Submitted){mark(document.querySelector('#approve'));return}
+        if(s.v3Submitted&&!s.v3ChangesRequested){mark(document.querySelector('#changes'));return}
       }
+      if(file==='delivery.html'&&!s.archived){if(!s.finalMasterReady){mark(document.querySelector('#createMaster'));return}if((s.deliveryItems||[]).some(v=>!v)){mark(document.querySelector('.rowBtn:not(:disabled)')||document.querySelector('#standardSet:not(:disabled)'));return}if(!s.deliveryRecord){mark(document.querySelector('#createDeliveryRecord')||document.querySelector('#completeDelivery')||document.querySelector('[data-action="deliver"]'));return}mark(document.querySelector('#archiveProject')||document.querySelector('[data-action="archive"]'));return}
     }
-
     function setEnabled(v){enabled=v;if(v){sessionStorage.setItem(DEMO_KEY,'1');document.body.classList.add('demoMode');launch.textContent='投资人演示';}else{sessionStorage.removeItem(DEMO_KEY);document.body.classList.remove('demoMode');launch.textContent='开启投资人演示';guide.classList.remove('open')}markNextTarget()}
     if(enabled)document.body.classList.add('demoMode');
-
     function render(){
       const c=currentChapter(),next=nextFor();
       guide.innerHTML=`<div class="demoGuideHead"><div class="demoGuideHeadTop"><b>ReelOps · 3–5 分钟投资人 Demo</b><span>${c.n} / 5</span></div><div class="demoGuideProgress"><i style="width:${c.n/5*100}%"></i></div></div><div class="demoGuideBody"><div class="k">${c.k}</div><h3>${c.title}</h3><p>${c.point}</p><div class="demoGuidePoint"><b>${next.ready?'本页主动作已完成':'本页先做这一件事'}</b>${next.ready?'可以继续下一段演示。':next.need}</div></div><div class="demoGuideFoot"><button class="quiet" data-action="reset">重置</button><button data-action="close">收起</button>${next.ready?`<a class="primary" href="${next.href}">${next.label}</a>`:`<button class="primary" disabled style="opacity:.38">完成主动作后继续</button>`}</div><div class="demoGuideHotkey">G：展开 / 收起 · 蓝色 NEXT 只提示动作，不会自动创建 Approval</div>`;
@@ -76,9 +81,8 @@
       guide.querySelector('[data-action="reset"]')?.addEventListener('click',()=>{window.ReelOpsState?.reset?.();sessionStorage.removeItem('reelops_startup_seen');sessionStorage.setItem(DEMO_KEY,'1');location.href='project.html?demo=1'});
       markNextTarget();
     }
-
     launch.addEventListener('click',()=>{if(!enabled){setEnabled(true);render();guide.classList.add('open');return}render();guide.classList.toggle('open')});
-    window.addEventListener('reelops:state',()=>{if(enabled)render()});
+    window.addEventListener('reelops:state',()=>{if(enabled)setTimeout(render,0)});
     window.addEventListener('keydown',e=>{if((e.key==='g'||e.key==='G')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){if(!enabled)setEnabled(true);render();guide.classList.toggle('open')}});
     setEnabled(enabled);if(qs.get('demo')==='1'){render();setTimeout(()=>guide.classList.add('open'),220)}
   };
