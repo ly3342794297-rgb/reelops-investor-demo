@@ -1,5 +1,5 @@
 (()=>{
-  const load=(tag,attr,url)=>{if(document.querySelector(`[${attr}]`))return;const e=document.createElement(tag);if(tag==='link'){e.rel='stylesheet';e.href=url}else{e.src=url;e.defer=true}e.setAttribute(attr,'1');document.head.appendChild(e)};
+  const load=(tag,attr,url)=>{if(document.querySelector(`[${attr}]`))return;const e=document.createElement(tag);if(tag==='link'){e.rel='stylesheet';e.href=url}else{e.src=url;e.async=false}e.setAttribute(attr,'1');document.head.appendChild(e)};
   load('link','data-final-pass','final-pass.css');
   load('script','data-golden-path-qa','golden-path-qa.js');
   load('script','data-final-pass','final-pass.js');
