@@ -31,10 +31,10 @@
     function project(s){
       if(file!=='project.html')return;
       const hero=$('#heroShot'),summary=$('#summaryShot'),delivery=$('#summaryDelivery'),phase=$('#summaryPhase'),header=$('#headerPhase');
-      const shot=ReelOpsState.shotLabel(s),p=ReelOpsState.projectPhase(s);
+      const shot=ReelOpsState.shotLabel(s),p=ReelOpsState.projectPhase(s),n=next(s);
       if(hero)hero.textContent='SHOT 08 · '+shot;if(summary)summary.textContent=shot;if(delivery)delivery.textContent=ReelOpsState.deliveryLabel(s);if(phase)phase.textContent=p;if(header)header.textContent=p;
-      const record=$('.recordChain');
-      if(record&&!$('.finalHierarchyNote'))record.insertAdjacentHTML('afterend','<div class="finalHierarchyNote">Project Overview 只保留项目事实：当前阶段、下一责任人、阻塞与生产对象关系。具体工作留在角色工作区。</div>');
+      const truth=$('.projectTruthBar');if(truth)truth.innerHTML=`<div class="ptLead"><span>PROJECT TRUTH</span><b>${p}</b></div><div class="ptMain"><small>NEXT STATE CHANGE</small><strong>${n[2]}</strong><p>下一责任人 · ${n[0]}</p></div><a href="${n[1]}">打开当前动作 →</a>`;
+      const record=$('.recordChain');if(record&&!$('.finalHierarchyNote'))record.insertAdjacentHTML('afterend','<div class="finalHierarchyNote">Project Overview 只保留项目事实：当前阶段、下一责任人、阻塞与生产对象关系。具体工作留在角色工作区。</div>');
     }
 
     function producer(s){
@@ -42,7 +42,7 @@
       $$('.shotTable .shotRow').forEach(r=>{if(!r.classList.contains('head')&&!r.classList.contains('focus'))r.classList.add('finalHidden')});
       const cp=$('#creativePulseValue'),cps=$('#creativePulseSub'),sp=$('#shotPulseValue'),sps=$('#shotPulseSub'),dp=$('#deliveryPulseValue'),dps=$('#deliveryPulseSub');
       if(cp)cp.textContent=s.creativeApproval?'Approved':s.creativeSubmitted?'等待客户':'Internal';if(cps)cps.textContent=ReelOpsState.creativeLabel(s);
-      if(sp)sp.textContent=ReelOpsState.shotLabel(s);const n=next(s);if(sps)sps.textContent=n[2];
+      const n=next(s);if(sp)sp.textContent=ReelOpsState.shotLabel(s);if(sps)sps.textContent=n[2];
       if(dp)dp.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${s.deliverables||0} / 4`:'Pending';if(dps)dps.textContent=ReelOpsState.deliveryLabel(s);
     }
 
@@ -56,17 +56,23 @@
 
     function director(s){
       if(file!=='director.html')return;
-      const versionBtn=$$('.subnav button').find(b=>b.textContent.includes('版本审阅'));
+      const versionBtn=$$('.subnav button').find(b=>b.textContent.includes('版本审阅')),top=$('#topState'),status=$('#shotStatus'),version=$('#versionStatus');
       if(versionBtn)versionBtn.classList.toggle('finalDeferred',!s.v3Submitted&&!s.v4Draft&&!s.v4Submitted&&!s.approval);
+      const shot=ReelOpsState.shotLabel(s);if(top)top.textContent=shot;if(status)status.textContent=shot;
+      if(version){version.textContent=s.approval?`${s.approvedVersion||'V4'} · Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft · Internal':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':'尚未提交正式 Version';}
     }
 
     function review(s){
       if(file!=='review.html')return;
-      const tabs=$$('.stageBtn');
-      tabs.forEach(b=>{if(b.dataset.stage==='versions'){const hasVersion=!!(s.v3Submitted||s.v3ChangesRequested||s.v4Submitted||s.v4ChangesRequested||s.approval);b.style.opacity=hasVersion?'1':'.58';}});
+      const hasVersion=!!(s.v3Submitted||s.v3ChangesRequested||s.v4Submitted||s.v4ChangesRequested||s.approval);
+      $$('.stageBtn').forEach(b=>{if(b.dataset.stage==='versions')b.style.opacity=hasVersion?'1':'.58'});
+      const progress=$('.clientProgress');if(progress){
+        const delivered=!!(s.deliveryRecord||s.delivered),versionState=s.approval?`${s.approvedVersion||'V4'} Approved`:s.v4ChangesRequested?'V4 Changes Requested':s.v4Submitted?'V4 In Review':s.v3ChangesRequested?'V3 Changes Requested':s.v3Submitted?'V3 In Review':'Not submitted';
+        progress.innerHTML=`<div class="step ${s.creativeApproval?'done':s.creativeSubmitted?'current':''}"><b>01 创意审阅</b><span>${s.creativeApproval?'Creative Approved':s.creativeSubmitted?'Waiting for decision':'Not published'}</span></div><div class="step ${s.creativeApproval&&!hasVersion?'current':hasVersion?'done':!s.creativeApproval?'locked':''}"><b>02 制作中</b><span>${s.creativeApproval?'Direction locked':'After creative approval'}</span></div><div class="step ${hasVersion&&!s.approval?'current':s.approval?'done':'locked'}"><b>03 成片审阅</b><span>${versionState}</span></div><div class="step ${s.approval&&!delivered?'current':delivered?'done':'locked'}"><b>04 最终交付</b><span>${delivered?'Delivered':s.approval?'Ready for delivery':'After version approval'}</span></div>`;
+      }
     }
 
     function render(){const s=state();project(s);producer(s);studio(s);director(s);review(s)}
-    render();setTimeout(render,120);window.addEventListener('reelops:state',()=>setTimeout(render,30));
+    render();setTimeout(render,160);window.addEventListener('reelops:state',()=>setTimeout(render,140));
   });
 })();
