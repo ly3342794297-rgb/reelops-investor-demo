@@ -14,6 +14,7 @@
       if(!s.workingComposite)return ['post.html','建立 Working Composite','先把不同来源的 Assets 汇入内部工作状态。','后期'];
       if(!s.v3Submitted)return ['post.html','正式提交 V3','Working Composite 不是 Version；先提交 V3 才能进入客户正式审阅。','后期'];
       if(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval)return ['review.html?stage=versions','等待 V3 客户决策','客户可以确认 V3，或者明确提出修改。','客户'];
+      if(s.v4ChangesRequested&&!s.approval)return ['post.html','进入第二轮 Revision Cycle','V4 已要求修改。正式 Version 不覆盖；生产级下一次正式提交应创建 V5，当前概念 Demo 暂未建模。','后期'];
       if(s.v3ChangesRequested&&(s.feedbackResolved||0)<3)return ['post.html','处理 V3 正式反馈',`还有 ${3-(s.feedbackResolved||0)} / 3 条反馈未闭合。`,'后期'];
       if(s.v3ChangesRequested&&!s.v4Draft)return ['post.html','生成 V4 Draft','V3 的 3 条反馈已闭合，可以形成下一正式版本草稿。','后期'];
       if(s.v4Draft&&!s.v4Submitted)return ['post.html','正式提交 V4','提交后才创建 V4 · In Review。','后期'];
