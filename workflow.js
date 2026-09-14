@@ -19,8 +19,11 @@
       return `${v} · Draft`;
     }
     function creativeTone(s){return s.creativeApproval?'ok':(s.creativeSubmitted||s.creativeChangesRequested)?'wait':'muted'}
-    function shotText(s){try{return window.ReelOpsState?.shotLabel?.(s)||'Production'}catch(e){return 'Production'}}
-    function shotTone(s){return s.approval?'ok':s.v4Submitted?'wait':(s.v4Draft||s.workingComposite)?'active':'muted'}
+    function shotText(s){
+      if(!s.creativeApproval)return s.creativeSubmitted?'Creative · In Review':'Creative · Pending';
+      try{return window.ReelOpsState?.shotLabel?.(s)||'Production'}catch(e){return 'Production'}
+    }
+    function shotTone(s){return !s.creativeApproval?(s.creativeSubmitted?'wait':'muted'):s.approval?'ok':s.v4Submitted?'wait':(s.v4Draft||s.workingComposite)?'active':'muted'}
     function deliveryText(s){try{return window.ReelOpsState?.deliveryLabel?.(s)||'Waiting'}catch(e){return 'Waiting'}}
     function fmt(v){if(!v)return '';try{return new Date(v).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch(e){return ''}}
 
@@ -54,7 +57,7 @@
         </div>
         <div class="shotInspectorBody">
           <section class="siSection"><div class="siSectionHead"><b>镜头意图</b><span>12s · Live Action + AIGC + CG/Post</span></div><p class="siCopy">主体从暗部进入暖金侧光，在最后两秒完成 Hero Reveal。人物与产品保持真实，环境允许克制延展。</p><div class="siRules"><div><small>必须保留</small><b>人物身份 · 产品结构 · 镜头运动 · 暖金侧光</b></div><div><small>允许改变</small><b>背景空间 · 环境细节 · 空间尺度 · 氛围</b></div></div></section>
-          <section class="siSection"><div class="siSectionHead"><b>生产对象链</b><span>Variant ≠ Asset ≠ Version ≠ Approval</span></div><div class="siLineage" data-si="lineage"></div></section>
+          <section class="siSection"><div class="siSectionHead"><b>生产对象链</b><span>Variant ≠ Asset ≠ Composite ≠ Version ≠ Approval</span></div><div class="siLineage" data-si="lineage"></div></section>
           <section class="siSection"><div class="siSectionHead"><b>当前下一动作</b><span>只显示会改变生产状态的动作</span></div><a class="siNext" data-si="next" href="#"><b></b><span></span><i>打开 →</i></a></section>
           <section class="siSection"><div class="siSectionHead"><b>Production Log</b><span>关键状态事件，不是聊天记录</span></div><div class="siLog" data-si="log"></div></section>
           <section class="siSection"><div class="siSectionHead"><b>进入工作位置</b><span>同一 Shot，不同角色视角</span></div><div class="siLinks"><a href="director.html">导演 / 创意</a><a href="live-action.html">实拍 + AI</a><a href="generation.html">AIGC</a><a href="post.html">后期</a><a href="review.html?stage=versions">客户审阅 ↗</a></div></section>
@@ -75,7 +78,7 @@
         ['AI Ready',s.aiReady?'Ready':'Pending',s.aiReady,s.creativeApproval&&!s.aiReady],
         ['Asset',s.genAsset?'Selected':'Pending',s.genAsset,s.packageSent&&!s.genAsset],
         ['Composite',s.workingComposite?'Created':'Pending',s.workingComposite,s.genAsset&&!s.workingComposite],
-        ['Version',shotText(s),s.v4Submitted||s.approval,s.v4Draft&&!s.v4Submitted],
+        ['Version',s.creativeApproval?shotText(s):'Locked',s.v4Submitted||s.approval,s.v4Draft&&!s.v4Submitted],
         ['Approval',s.approval?'Recorded':'Pending',s.approval,s.v4Submitted&&!s.approval],
         ['Delivery',deliveryText(s),!!s.deliveryRecord||!!s.archiveRecord,!!s.approval&&!s.deliveryRecord]
       ];
@@ -87,7 +90,7 @@
         ['AI Ready Package',s.packageSent?'已发送 AIGC':s.aiReady?'已就绪':'待补齐',s.aiReady||s.packageSent,''],
         ['AIGC Selected Asset',s.genAsset?'Variant '+(s.selectedVariant||'B')+' 已加入 Assets':'尚未选择',s.genAsset,''],
         ['Working Composite',s.workingComposite?'已建立 · Internal':'尚未建立',s.workingComposite,''],
-        ['V4',s.approval?'Approved':s.v4Submitted?'In Review':s.v4Draft?'Draft':'尚未创建',s.v4Draft||s.v4Submitted||s.approval,s.approvalAt&&s.approval?fmt(s.approvalAt):''],
+        ['V4',s.approval?'Approved':s.v4Submitted?'In Review':s.v4Draft?'Draft':s.creativeApproval?'尚未创建':'Locked by Creative Approval',s.v4Draft||s.v4Submitted||s.approval,s.approvalAt&&s.approval?fmt(s.approvalAt):''],
         ['Final Master',s.finalMasterReady?'Ready':'Pending',s.finalMasterReady,''],
         ['Delivery Record',s.deliveryRecord?'DLV-AURORA-001 · Complete':'Pending',s.deliveryRecord,s.deliveryRecordAt?fmt(s.deliveryRecordAt):''],
         ['Archive Record',s.archiveRecord?'ARC-AURORA-001 · Archived':'Pending',s.archiveRecord,s.archiveAt?fmt(s.archiveAt):'']
@@ -105,7 +108,7 @@
           <a class="pcbProject" href="project.html"><span class="pcbDot"></span><b>Project Aurora</b></a>
           <span class="pcbItem"><small>PHASE</small><b data-pcb="phase">Production</b></span>
           <span class="pcbItem"><small>CREATIVE</small><b data-pcb="creative">V2 · Draft</b></span>
-          <button class="pcbShotButton" type="button" aria-label="打开 SHOT 08 生产记录"><small>SHOT 08</small><b data-pcb="shot">V3 · Changes Requested</b><span>⌘</span></button>
+          <button class="pcbShotButton" type="button" aria-label="打开 SHOT 08 生产记录"><small>SHOT 08</small><b data-pcb="shot">Creative · Pending</b><span>⌘</span></button>
           <span class="pcbSpacer"></span>
           <a class="pcbControl" href="producer.html">制片统筹</a>
         `;
