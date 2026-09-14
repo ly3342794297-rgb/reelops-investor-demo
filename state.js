@@ -1,6 +1,6 @@
 (() => {
   const KEY = 'reelops_demo_state_v4';
-  const SCHEMA = 5;
+  const SCHEMA = 6;
   const base = {
     schemaVersion: SCHEMA,
     project: 'Project Aurora',
@@ -11,13 +11,7 @@
     creativeApprovalAt: null,
     creativeChangesRequested: false,
     newCreativeFeedback: 0,
-    creativeShared: {
-      brief: true,
-      treatment: true,
-      storyboard: true,
-      reference: true,
-      decisionLog: false
-    },
+    creativeShared: {brief:true,treatment:true,storyboard:true,reference:true,decisionLog:false},
     selectedVariant: 'B',
     aiReady: false,
     captureComplete: false,
@@ -43,119 +37,93 @@
     newClientFeedback: 0
   };
 
-  function normalize(saved={}){
-    const next = {...base, ...saved, creativeShared: {...base.creativeShared, ...(saved.creativeShared || {})}};
-    if (!Array.isArray(next.feedbackResolvedItems) || next.feedbackResolvedItems.length !== 3) {
-      const n = Math.max(0,Math.min(3,Number(next.feedbackResolved)||0));
-      next.feedbackResolvedItems = [0,1,2].map(i=>i<n);
-    }
-    next.feedbackResolved = next.feedbackResolvedItems.filter(Boolean).length;
-    if (!Array.isArray(saved.deliveryItems) || saved.deliveryItems.length !== 4) {
-      if (saved.delivered || saved.archived || saved.deliveryRecord || saved.archiveRecord) next.deliveryItems = [true,true,true,true];
-      else next.deliveryItems = [false,false,false,false];
-    } else next.deliveryItems = saved.deliveryItems.map(Boolean);
-    next.finalMasterReady = !!(saved.finalMasterReady || saved.delivered || saved.archived || saved.deliveryRecord || saved.archiveRecord);
-    next.deliveryRecord = !!(saved.deliveryRecord || saved.delivered || saved.archived || saved.archiveRecord);
-    next.delivered = !!(saved.delivered || next.deliveryRecord);
-    next.archiveRecord = !!(saved.archiveRecord || saved.archived);
-    next.archived = !!(saved.archived || next.archiveRecord);
-    next.deliverables = next.deliveryItems.filter(Boolean).length;
-    next.schemaVersion = SCHEMA;
+  function enforce(next){
+    // Creative review is a separate gate from version review.
+    if(next.creativeApproval){next.creativeSubmitted=true;next.creativeChangesRequested=false;}
+    if(next.creativeChangesRequested){next.creativeSubmitted=true;next.creativeApproval=false;}
+
+    // SHOT 08 demo contract: formal AI handoff only after creative direction is locked.
+    if(!next.creativeApproval){next.packageSent=false;next.genAsset=false;next.workingComposite=false;next.v4Draft=false;next.v4Submitted=false;next.approval=false;next.finalMasterReady=false;next.deliveryRecord=false;next.archiveRecord=false;next.delivered=false;next.archived=false;next.deliveryItems=[false,false,false,false];}
+    if(next.packageSent){next.aiReady=true;next.captureComplete=true;}
+    if(!next.packageSent){next.genAsset=false;next.workingComposite=false;next.v4Draft=false;next.v4Submitted=false;next.approval=false;}
+    if(next.genAsset)next.packageSent=true;
+    if(next.workingComposite)next.genAsset=true;
+    if(next.v4Draft)next.workingComposite=true;
+
+    const resolved=(next.feedbackResolvedItems||[]).filter(Boolean).length;
+    next.feedbackResolved=resolved;
+    if(next.v4Submitted && (!next.v4Draft || resolved<3))next.v4Submitted=false;
+    if(next.approval){next.v4Submitted=true;next.v4Draft=true;next.workingComposite=true;next.genAsset=true;next.packageSent=true;next.aiReady=true;next.captureComplete=true;next.changesRequested=false;}
+    if(next.changesRequested && next.v4Submitted)next.approval=false;
+
+    // Delivery is downstream of an independent Version Approval Record.
+    if(!next.approval){next.finalMasterReady=false;next.deliveryItems=[false,false,false,false];next.deliveryRecord=false;next.delivered=false;next.archiveRecord=false;next.archived=false;}
+    if(!next.finalMasterReady)next.deliveryItems=[false,false,false,false];
+    if(!Array.isArray(next.deliveryItems))next.deliveryItems=[false,false,false,false];
+    next.deliveryItems=[...next.deliveryItems].slice(0,4).map(Boolean);while(next.deliveryItems.length<4)next.deliveryItems.push(false);
+    next.deliverables=next.deliveryItems.filter(Boolean).length;
+    const deliveryReady=next.approval&&next.finalMasterReady&&next.deliveryItems.every(Boolean);
+    if(next.deliveryRecord&&!deliveryReady)next.deliveryRecord=false;
+    if(next.deliveryRecord){next.delivered=true;next.deliveryRecordAt=next.deliveryRecordAt||new Date().toISOString();}
+    else next.delivered=false;
+    if(next.archiveRecord&&!next.deliveryRecord)next.archiveRecord=false;
+    if(next.archiveRecord){next.archived=true;next.archiveAt=next.archiveAt||new Date().toISOString();}
+    else next.archived=false;
+    next.schemaVersion=SCHEMA;
     return next;
+  }
+
+  function normalize(saved={}){
+    const next={...base,...saved,creativeShared:{...base.creativeShared,...(saved.creativeShared||{})}};
+    if(!Array.isArray(next.feedbackResolvedItems)||next.feedbackResolvedItems.length!==3){
+      const n=Math.max(0,Math.min(3,Number(next.feedbackResolved)||0));next.feedbackResolvedItems=[0,1,2].map(i=>i<n);
+    }else next.feedbackResolvedItems=next.feedbackResolvedItems.map(Boolean);
+    if(!Array.isArray(saved.deliveryItems)||saved.deliveryItems.length!==4){
+      if(saved.delivered||saved.archived||saved.deliveryRecord||saved.archiveRecord)next.deliveryItems=[true,true,true,true];
+      else next.deliveryItems=[false,false,false,false];
+    }
+    next.finalMasterReady=!!(saved.finalMasterReady||saved.delivered||saved.archived||saved.deliveryRecord||saved.archiveRecord);
+    next.deliveryRecord=!!(saved.deliveryRecord||saved.delivered||saved.archived||saved.archiveRecord);
+    next.archiveRecord=!!(saved.archiveRecord||saved.archived);
+    return enforce(next);
   }
 
   function read(){
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
-      const next = normalize(saved);
-      if (saved.schemaVersion !== SCHEMA) localStorage.setItem(KEY, JSON.stringify(next));
-      return next;
-    } catch(e){ return normalize({}); }
+    try{
+      const saved=JSON.parse(localStorage.getItem(KEY)||'{}');const next=normalize(saved);
+      if(saved.schemaVersion!==SCHEMA)localStorage.setItem(KEY,JSON.stringify(next));return next;
+    }catch(e){return normalize({});}
   }
 
   function write(patch){
-    const current = read();
-    const next = {...current, ...patch, schemaVersion: SCHEMA};
-    if (patch.creativeShared) next.creativeShared = {...current.creativeShared, ...patch.creativeShared};
-    if (patch.feedbackResolvedItems) {
-      next.feedbackResolvedItems = [...patch.feedbackResolvedItems];
-      next.feedbackResolved = next.feedbackResolvedItems.filter(Boolean).length;
-    } else if (Object.prototype.hasOwnProperty.call(patch,'feedbackResolved')) {
-      const n = Math.max(0,Math.min(3,Number(patch.feedbackResolved)||0));
-      next.feedbackResolvedItems = [0,1,2].map(i=>i<n);
-      next.feedbackResolved = n;
+    const current=read();const next={...current,...patch,schemaVersion:SCHEMA};
+    if(patch.creativeShared)next.creativeShared={...current.creativeShared,...patch.creativeShared};
+    if(patch.feedbackResolvedItems)next.feedbackResolvedItems=[...patch.feedbackResolvedItems];
+    else if(Object.prototype.hasOwnProperty.call(patch,'feedbackResolved')){
+      const n=Math.max(0,Math.min(3,Number(patch.feedbackResolved)||0));next.feedbackResolvedItems=[0,1,2].map(i=>i<n);
     }
-    if (patch.deliveryItems) {
-      next.deliveryItems = [...patch.deliveryItems].slice(0,4).map(Boolean);
-      while(next.deliveryItems.length<4) next.deliveryItems.push(false);
-    }
-    next.deliverables = (next.deliveryItems || []).filter(Boolean).length;
-    if (patch.deliveryRecord === true) next.delivered = true;
-    if (patch.deliveryRecord === false) next.delivered = false;
-    if (patch.archiveRecord === true) next.archived = true;
-    if (patch.archiveRecord === false) next.archived = false;
-    localStorage.setItem(KEY, JSON.stringify(next));
-    window.dispatchEvent(new CustomEvent('reelops:state', {detail: next}));
-    return next;
+    if(patch.deliveryItems)next.deliveryItems=[...patch.deliveryItems];
+    const safe=enforce(next);localStorage.setItem(KEY,JSON.stringify(safe));window.dispatchEvent(new CustomEvent('reelops:state',{detail:safe}));return safe;
   }
 
-  function reset(){ const fresh = normalize({}); localStorage.setItem(KEY, JSON.stringify(fresh)); return fresh; }
-  function shotLabel(s=read()){
-    if (s.approval) return 'V4 · Approved';
-    if (s.v4Submitted) return 'V4 · In Review';
-    if (s.v4Draft) return 'V4 Draft';
-    if (s.workingComposite) return 'Working Composite';
-    return 'V3 · Changes Requested';
+  function reset(){const fresh=normalize({});localStorage.setItem(KEY,JSON.stringify(fresh));window.dispatchEvent(new CustomEvent('reelops:state',{detail:fresh}));return fresh;}
+  function shotLabel(s=read()){if(s.approval)return 'V4 · Approved';if(s.v4Submitted)return 'V4 · In Review';if(s.v4Draft)return 'V4 Draft';if(s.workingComposite)return 'Working Composite';return 'V3 · Changes Requested';}
+  function creativeLabel(s=read()){if(s.creativeApproval)return `Creative Direction ${s.creativeVersion} · Approved`;if(s.creativeChangesRequested)return `Creative Direction ${s.creativeVersion} · Changes Requested`;if(s.creativeSubmitted)return `Creative Direction ${s.creativeVersion} · In Review`;return `Creative Direction ${s.creativeVersion} · Internal Draft`;}
+  function projectPhase(s=read()){if(s.archived||s.archiveRecord)return 'Archived';if(s.delivered||s.deliveryRecord)return 'Delivered';if(s.approval)return 'Delivery';if(s.v4Submitted)return 'Version Review';if(s.v4Draft||s.workingComposite||s.genAsset)return 'Post-production';if(s.packageSent||s.aiReady||s.creativeApproval)return 'Production';if(s.creativeSubmitted||s.creativeChangesRequested)return 'Creative Review';return 'Pre-production';}
+  function deliveryLabel(s=read()){if(s.archiveRecord||s.archived)return 'Archived';if(s.deliveryRecord||s.delivered)return 'Delivery Record Complete';if((s.deliveryItems||[]).every(Boolean))return 'Ready to Deliver';if(s.finalMasterReady)return `${s.deliverables||0} / 4 Deliverables Ready`;if(s.approval)return 'Final Master Pending';return 'Waiting for Version Approval';}
+  function can(action,s=read()){
+    const rules={sendPackage:()=>s.creativeApproval&&s.aiReady,selectAsset:()=>s.packageSent,buildComposite:()=>s.genAsset,createV4:()=>s.workingComposite,submitV4:()=>s.v4Draft&&s.feedbackResolved===3,approveV4:()=>s.v4Submitted,createFinalMaster:()=>s.approval,completeDelivery:()=>s.approval&&s.finalMasterReady&&(s.deliveryItems||[]).every(Boolean),archive:()=>s.deliveryRecord};
+    return rules[action]?!!rules[action]():true;
   }
-  function creativeLabel(s=read()){
-    if (s.creativeApproval) return `Creative Direction ${s.creativeVersion} · Approved`;
-    if (s.creativeChangesRequested) return `Creative Direction ${s.creativeVersion} · Changes Requested`;
-    if (s.creativeSubmitted) return `Creative Direction ${s.creativeVersion} · In Review`;
-    return `Creative Direction ${s.creativeVersion} · Internal Draft`;
-  }
-  function projectPhase(s=read()){
-    if (s.archived || s.archiveRecord) return 'Archived';
-    if (s.delivered || s.deliveryRecord) return 'Delivered';
-    if (s.approval) return 'Delivery';
-    if (s.v4Submitted) return 'Version Review';
-    if (s.v4Draft || s.workingComposite || s.genAsset) return 'Post-production';
-    if (s.packageSent || s.aiReady || s.creativeApproval) return 'Production';
-    if (s.creativeSubmitted || s.creativeChangesRequested) return 'Creative Review';
-    return 'Pre-production';
-  }
-  function deliveryLabel(s=read()){
-    if (s.archiveRecord || s.archived) return 'Archived';
-    if (s.deliveryRecord || s.delivered) return 'Delivery Record Complete';
-    if ((s.deliveryItems||[]).every(Boolean)) return 'Ready to Deliver';
-    if (s.finalMasterReady) return `${s.deliverables || 0} / 4 Deliverables Ready`;
-    if (s.approval) return 'Final Master Pending';
-    return 'Waiting for Version Approval';
-  }
-  window.ReelOpsState = {get: read, set: write, reset, shotLabel, creativeLabel, projectPhase, deliveryLabel, key: KEY};
+  window.ReelOpsState={get:read,set:write,reset,shotLabel,creativeLabel,projectPhase,deliveryLabel,can,key:KEY};
 
-  if (!document.querySelector('link[data-reelops-polish]')) {
-    const link = document.createElement('link');link.rel='stylesheet';link.href='polish.css';link.dataset.reelopsPolish='1';document.head.appendChild(link);
-  }
-  if (!document.querySelector('script[data-reelops-polish]')) {
-    const script=document.createElement('script');script.src='polish.js';script.defer=true;script.dataset.reelopsPolish='1';document.head.appendChild(script);
-  }
-  if (!document.querySelector('link[data-demo-guide]')) {
-    const link=document.createElement('link');link.rel='stylesheet';link.href='demo-guide.css';link.dataset.demoGuide='1';document.head.appendChild(link);
-  }
-  if (!document.querySelector('script[data-demo-guide]')) {
-    const script=document.createElement('script');script.src='demo-guide.js';script.defer=true;script.dataset.demoGuide='1';document.head.appendChild(script);
-  }
+  if(!document.querySelector('link[data-reelops-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='polish.css';link.dataset.reelopsPolish='1';document.head.appendChild(link);}
+  if(!document.querySelector('script[data-reelops-polish]')){const script=document.createElement('script');script.src='polish.js';script.defer=true;script.dataset.reelopsPolish='1';document.head.appendChild(script);}
+  if(!document.querySelector('link[data-demo-guide]')){const link=document.createElement('link');link.rel='stylesheet';link.href='demo-guide.css';link.dataset.demoGuide='1';document.head.appendChild(link);}
+  if(!document.querySelector('script[data-demo-guide]')){const script=document.createElement('script');script.src='demo-guide.js';script.defer=true;script.dataset.demoGuide='1';document.head.appendChild(script);}
   const file=(location.pathname.split('/').pop()||'').toLowerCase();
-  if ((file==='project.html'||file==='producer.html') && !document.querySelector('script[data-closure-ux]')) {
-    const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);
-  }
-  if (file === 'producer.html' && !document.querySelector('script[data-producer-workflow]')) {
-    const script=document.createElement('script');script.src='workflow.js';script.defer=true;script.dataset.producerWorkflow='1';document.head.appendChild(script);
-  }
-  if (file === 'director.html' && !document.querySelector('script[data-director-ux]')) {
-    const script=document.createElement('script');script.src='director-ux.js';script.defer=true;script.dataset.directorUx='1';document.head.appendChild(script);
-  }
-  if (file === 'live-action.html' && !document.querySelector('script[data-live-ux]')) {
-    const script=document.createElement('script');script.src='live-ux.js';script.defer=true;script.dataset.liveUx='1';document.head.appendChild(script);
-  }
+  if((file==='project.html'||file==='producer.html')&&!document.querySelector('script[data-closure-ux]')){const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);}
+  if(file==='producer.html'&&!document.querySelector('script[data-producer-workflow]')){const script=document.createElement('script');script.src='workflow.js';script.defer=true;script.dataset.producerWorkflow='1';document.head.appendChild(script);}
+  if(file==='director.html'&&!document.querySelector('script[data-director-ux]')){const script=document.createElement('script');script.src='director-ux.js';script.defer=true;script.dataset.directorUx='1';document.head.appendChild(script);}
+  if(file==='live-action.html'&&!document.querySelector('script[data-live-ux]')){const script=document.createElement('script');script.src='live-ux.js';script.defer=true;script.dataset.liveUx='1';document.head.appendChild(script);}
 })();
