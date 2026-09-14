@@ -27,14 +27,35 @@
       if(!s.archiveRecord)return ['交付与归档','delivery.html','创建 Archive Record'];
       return ['Project Overview','project.html','Project Aurora 已闭环'];
     }
+    const stage=(title,done,current,detail)=>`<div class="stage ${done?'done':current?'current':'locked'}"><div class="n"></div><b>${title}</b><span>${detail}</span></div>`;
 
     function project(s){
       if(file!=='project.html')return;
-      const hero=$('#heroShot'),summary=$('#summaryShot'),delivery=$('#summaryDelivery'),phase=$('#summaryPhase'),header=$('#headerPhase');
-      const shot=ReelOpsState.shotLabel(s),p=ReelOpsState.projectPhase(s),n=next(s);
+      const hero=$('#heroShot'),summary=$('#summaryShot'),delivery=$('#summaryDelivery'),phase=$('#summaryPhase'),header=$('#headerPhase'),client=$('#summaryClient');
+      const shot=ReelOpsState.shotLabel(s),p=ReelOpsState.projectPhase(s),n=next(s),approved=s.approvedVersion||'V4';
       if(hero)hero.textContent='SHOT 08 · '+shot;if(summary)summary.textContent=shot;if(delivery)delivery.textContent=ReelOpsState.deliveryLabel(s);if(phase)phase.textContent=p;if(header)header.textContent=p;
+      if(client)client.textContent=s.approval?`${approved} · Version Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · Waiting for client':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · Waiting for client':s.creativeApproval?'Creative Approved · 成片未提交':s.creativeSubmitted?'Creative Direction · Waiting for client':'Creative Direction · Not published';
       const truth=$('.projectTruthBar');if(truth)truth.innerHTML=`<div class="ptLead"><span>PROJECT TRUTH</span><b>${p}</b></div><div class="ptMain"><small>NEXT STATE CHANGE</small><strong>${n[2]}</strong><p>下一责任人 · ${n[0]}</p></div><a href="${n[1]}">打开当前动作 →</a>`;
+      const rail=$('#stageRail');if(rail){
+        const reviewNow=!s.approval&&((s.v3Submitted&&!s.v3ChangesRequested)||s.v4Submitted),postNow=!!(s.genAsset&&!s.v3Submitted||s.v3ChangesRequested&&!s.v4Submitted||s.v4Draft&&!s.v4Submitted||s.v4ChangesRequested);
+        rail.innerHTML=[
+          stage('Creative',!!s.creativeApproval,!s.creativeApproval,'Brief / Treatment / Creative Approval'),
+          stage('Production',!!s.genAsset,!!s.creativeApproval&&!s.genAsset,'Capture / AI Ready / Selected Asset'),
+          stage('Post',!!s.approval||!!s.v4Submitted||!!(s.v3Submitted&&!s.v3ChangesRequested),postNow,'Working Composite / Revision / Version'),
+          stage('Client Decision',!!s.approval,reviewNow,'V3 / V4 · Review & Approval'),
+          stage('Delivery',!!s.archiveRecord,!!s.approval&&!s.archiveRecord,'Final Master / Delivery / Archive')
+        ].map((x,i)=>x.replace('<div class="n"></div>',`<div class="n">0${i+1}</div>`)).join('');
+      }
+      const health=$('#healthGrid');if(health){
+        const versionState=s.approval?[`good`,`${approved} Approved`,'Version Approval Record 已形成']:s.v4ChangesRequested?['attn','V4 Changes','下一正式版本应创建 V5']:s.v4Submitted?['wait','V4 In Review','等待客户版本决策']:s.v4Draft?['attn','V4 Draft','尚未正式提交']:s.v3ChangesRequested?['attn','V3 Changes','Revision 正在处理']:s.v3Submitted?['wait','V3 In Review','等待客户首次版本决策']:s.workingComposite?['attn','Composite','内部工作状态']:['','Not ready','尚未形成正式 Version'];
+        const creative=s.creativeApproval?['good','Approved',`${s.creativeVersion||'V2'} 已锁定`]:s.creativeSubmitted?['wait','Waiting','等待客户创意决策']:['attn','Not published','创意方向尚未发布'];
+        const capture=s.aiReady?['good','AI Ready',s.packageSent?'AI Production Package 已发送':'现场输入已齐套']:s.creativeApproval?['attn','Missing inputs','AI Ready 尚未闭合']:['','Locked','等待 Creative Approval'];
+        const d=s.archiveRecord?['good','Archived','项目记录已闭环']:s.deliveryRecord?['good','Delivered','Delivery Record 已完成']:s.finalMasterReady?['attn',`${s.deliverables||0}/4 Ready`,'Deliverables 尚未闭合']:s.approval?['attn','Final Master Pending',`${approved} Approved → Final Master`]:['','Locked','等待 Version Approval'];
+        health.innerHTML=[["CREATIVE",...creative],["AI READY",...capture],["VERSION",...versionState],["DELIVERY",...d]].map(x=>`<div class="health ${x[1]}"><div class="k">${x[0]}</div><strong>${x[2]}</strong><span>${x[3]}</span></div>`).join('');
+      }
       const record=$('.recordChain');if(record&&!$('.finalHierarchyNote'))record.insertAdjacentHTML('afterend','<div class="finalHierarchyNote">Project Overview 只保留项目事实：当前阶段、下一责任人、阻塞与生产对象关系。具体工作留在角色工作区。</div>');
+      const asset=$('#recordAsset'),version=$('#recordVersion'),approval=$('#recordApproval'),recordDelivery=$('#recordDelivery');
+      if(asset)asset.className='recordObj '+(s.genAsset?'done':s.packageSent?'live':'');if(version)version.className='recordObj '+(s.v3Submitted||s.v4Draft||s.v4Submitted||s.approval?'done':s.workingComposite?'live':'');if(approval)approval.className='recordObj '+(s.approval?'done':reviewNow?'live':'');if(recordDelivery)recordDelivery.className='recordObj '+(s.deliveryRecord||s.archiveRecord?'done':s.approval?'live':'');
     }
 
     function producer(s){
@@ -59,7 +80,7 @@
       const versionBtn=$$('.subnav button').find(b=>b.textContent.includes('版本审阅')),top=$('#topState'),status=$('#shotStatus'),version=$('#versionStatus');
       if(versionBtn)versionBtn.classList.toggle('finalDeferred',!s.v3Submitted&&!s.v4Draft&&!s.v4Submitted&&!s.approval);
       const shot=ReelOpsState.shotLabel(s);if(top)top.textContent=shot;if(status)status.textContent=shot;
-      if(version){version.textContent=s.approval?`${s.approvedVersion||'V4'} · Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft · Internal':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':'尚未提交正式 Version';}
+      if(version)version.textContent=s.approval?`${s.approvedVersion||'V4'} · Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft · Internal':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':'尚未提交正式 Version';
     }
 
     function review(s){
@@ -73,6 +94,7 @@
     }
 
     function render(){const s=state();project(s);producer(s);studio(s);director(s);review(s)}
-    render();setTimeout(render,160);window.addEventListener('reelops:state',()=>setTimeout(render,140));
+    render();setTimeout(render,180);window.addEventListener('reelops:state',()=>setTimeout(render,160));
+    setTimeout(()=>{if(sessionStorage.getItem('reelops_investor_demo_mode')==='1')document.querySelector('.demoGuide')?.classList.add('open')},420);
   });
 })();
