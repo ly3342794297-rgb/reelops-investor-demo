@@ -1,3 +1,4 @@
+(()=>{if(!document.querySelector('script[data-golden-path-qa]')){const s=document.createElement('script');s.src='golden-path-qa.js';s.defer=true;s.dataset.goldenPathQa='1';document.head.appendChild(s)}})();
 (()=>{
   const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   ready(()=>{
@@ -15,6 +16,7 @@
       if(!s.workingComposite)return ['后期','Post Workspace'];
       if(!s.v3Submitted)return ['后期','提交 V3'];
       if(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval)return ['客户','Client Version Review · V3'];
+      if(s.v4ChangesRequested&&!s.approval)return ['后期','Post Revision · V4'];
       if(s.v3ChangesRequested&&((s.feedbackResolved||0)<3||!s.v4Draft||!s.v4Submitted))return ['后期','Post Revision · V3 → V4'];
       if(s.v4Submitted&&!s.approval)return ['客户','Client Version Review · V4'];
       return ['制片 / 交付','Delivery Workspace'];
@@ -29,6 +31,7 @@
       if(!s.workingComposite)return '尚未建立 Working Composite';
       if(!s.v3Submitted)return 'V3 尚未正式提交';
       if(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval)return '等待 V3 客户决策';
+      if(s.v4ChangesRequested&&!s.approval)return 'V4 已要求修改 · 等待重新提交';
       if(s.v3ChangesRequested&&(s.feedbackResolved||0)<3)return `${3-(s.feedbackResolved||0)} 条 V3 反馈未闭合`;
       if(s.v3ChangesRequested&&!s.v4Draft)return 'V4 Draft 尚未生成';
       if(s.v4Draft&&!s.v4Submitted)return 'V4 尚未正式提交';
@@ -71,7 +74,7 @@
         const render=()=>{const s=state();if(type==='creative'){
           const approved=!!s.creativeApproval,changes=!!s.creativeChangesRequested,published=!!s.creativeSubmitted;banner.className='clientDecisionBanner '+(approved?'approved':changes?'changes':'');banner.innerHTML=`<div><small>YOUR DECISION · CREATIVE DIRECTION ${s.creativeVersion||'V2'}</small><b>${approved?'创意方向已确认':changes?'已要求修改':'请确认这是否是可以进入制作的方向'}</b><p>${approved?'Creative Approval 已形成独立记录；成片仍需再次确认。':changes?'导演将基于本轮反馈形成下一版 Creative Direction。':'你确认的是制作方向，不是最终成片。确认后，实拍与 AI 制作将按这套规则继续。'}</p></div><span class="clientDecisionStatus">${approved?'APPROVED':changes?'CHANGES REQUESTED':published?'DECISION REQUIRED':'NOT PUBLISHED'}</span>`;
         }else{
-          const version=s.approval?(s.approvedVersion||'V4'):s.v4Submitted?'V4':s.v3Submitted?'V3':null;const changes=!!(s.v3ChangesRequested||s.v4ChangesRequested);banner.className='clientDecisionBanner '+(s.approval?'approved':changes?'changes':'');banner.innerHTML=`<div><small>YOUR DECISION${version?' · SHOT 08 · '+version:''}</small><b>${s.approval?version+' 已确认':changes?version+' 已要求修改':version?'请确认当前正式版本，或提出具体修改':'正式版本尚未提交'}</b><p>${s.approval?'Version Approval 已形成独立记录，项目将进入 Final Master 与交付。':changes?'反馈已经绑定当前正式 Version 并回到 Post。':version?'Working Composite 与内部测试不会出现在客户空间。':'后期需要先正式提交 Version，客户才能做版本决策。'}</p></div><span class="clientDecisionStatus">${s.approval?'APPROVED':changes?'CHANGES REQUESTED':version?'DECISION REQUIRED':'WAITING FOR SUBMISSION'}</span>`;
+          const version=s.approval?(s.approvedVersion||'V4'):s.v4ChangesRequested?'V4':s.v4Submitted?'V4':s.v3Submitted?'V3':null;const changes=!!(s.v3ChangesRequested||s.v4ChangesRequested);banner.className='clientDecisionBanner '+(s.approval?'approved':changes?'changes':'');banner.innerHTML=`<div><small>YOUR DECISION${version?' · SHOT 08 · '+version:''}</small><b>${s.approval?version+' 已确认':changes?version+' 已要求修改':version?'请确认当前正式版本，或提出具体修改':'正式版本尚未提交'}</b><p>${s.approval?'Version Approval 已形成独立记录，项目将进入 Final Master 与交付。':changes?'反馈已经绑定当前正式 Version 并回到 Post。':version?'Working Composite 与内部测试不会出现在客户空间。':'后期需要先正式提交 Version，客户才能做版本决策。'}</p></div><span class="clientDecisionStatus">${s.approval?'APPROVED':changes?'CHANGES REQUESTED':version?'DECISION REQUIRED':'WAITING FOR SUBMISSION'}</span>`;
         }};render();window.addEventListener('reelops:state',render);};
       addDecision('#creativeStage','creative');addDecision('#versionsStage','version');
       const cSide=$('#creativeStage .sidePanel');if(cSide&&!cSide.querySelector('.reviewVisibilityNote'))cSide.insertAdjacentHTML('beforeend','<div class="reviewVisibilityNote">这里是客户决策空间，不是内部制作后台。客户只能看到导演明确发布的创意对象。</div>');
