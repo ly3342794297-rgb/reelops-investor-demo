@@ -1,8 +1,8 @@
 (()=>{
   const load=(tag,attr,url)=>{if(document.querySelector(`[${attr}]`))return;const e=document.createElement(tag);if(tag==='link'){e.rel='stylesheet';e.href=url}else{e.src=url;e.async=false}e.setAttribute(attr,'1');document.head.appendChild(e)};
-  load('link','data-final-pass','final-pass.css');
+  load('link','data-final-pass-style','final-pass.css');
   load('script','data-golden-path-qa','golden-path-qa.js');
-  load('script','data-final-pass','final-pass.js');
+  load('script','data-final-pass-script','final-pass.js');
   const apply=()=>{
     const dock=document.querySelector('.flowDock');if(!dock||dock.dataset.semantic==='1')return false;
     dock.dataset.semantic='1';dock.setAttribute('aria-label','ReelOps 角色入口与生产链');
