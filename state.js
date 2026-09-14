@@ -85,4 +85,12 @@
     script.dataset.reelopsPolish = '1';
     document.head.appendChild(script);
   }
+  const file=(location.pathname.split('/').pop()||'').toLowerCase();
+  if (file === 'director.html' && !document.querySelector('script[data-director-ux]')) {
+    const script = document.createElement('script');
+    script.src = 'director-ux.js';
+    script.defer = true;
+    script.dataset.directorUx = '1';
+    document.head.appendChild(script);
+  }
 })();
