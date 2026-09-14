@@ -59,7 +59,17 @@
     if (s.creativeSubmitted) return `Creative Direction ${s.creativeVersion} · In Review`;
     return `Creative Direction ${s.creativeVersion} · Internal Draft`;
   }
-  window.ReelOpsState = {get: read, set: write, reset, shotLabel, creativeLabel, key: KEY};
+  function projectPhase(s=read()){
+    if (s.archived) return 'Archived';
+    if (s.delivered) return 'Delivered';
+    if (s.approval) return 'Delivery';
+    if (s.v4Submitted) return 'Version Review';
+    if (s.v4Draft || s.genAsset) return 'Post-production';
+    if (s.packageSent || s.aiReady || s.creativeApproval) return 'Production';
+    if (s.creativeSubmitted || s.creativeChangesRequested) return 'Creative Review';
+    return 'Pre-production';
+  }
+  window.ReelOpsState = {get: read, set: write, reset, shotLabel, creativeLabel, projectPhase, key: KEY};
 
   if (!document.querySelector('link[data-reelops-polish]')) {
     const link = document.createElement('link');
