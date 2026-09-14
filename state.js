@@ -122,6 +122,8 @@
     if(!document.querySelector('link[data-closure-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='closure-polish.css';link.dataset.closurePolish='1';document.head.appendChild(link);}
     if(!document.querySelector('script[data-closure-polish]')){const script=document.createElement('script');script.src='closure-final.js';script.defer=true;script.dataset.closurePolish='1';document.head.appendChild(script);}
   }
+  if(!document.querySelector('link[data-nav-semantics]')){const link=document.createElement('link');link.rel='stylesheet';link.href='nav-semantics.css';link.dataset.navSemantics='1';document.head.appendChild(link);}
+  if(!document.querySelector('script[data-nav-semantics]')){const script=document.createElement('script');script.src='nav-semantics.js';script.defer=true;script.dataset.navSemantics='1';document.head.appendChild(script);}
   if(!document.querySelector('link[data-demo-guide]')){const link=document.createElement('link');link.rel='stylesheet';link.href='demo-guide.css';link.dataset.demoGuide='1';document.head.appendChild(link);}
   if(!document.querySelector('script[data-demo-guide]')){const script=document.createElement('script');script.src='demo-guide.js';script.defer=true;script.dataset.demoGuide='1';document.head.appendChild(script);}
   if((file==='project.html'||file==='producer.html')&&!document.querySelector('script[data-closure-ux]')){const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);}
