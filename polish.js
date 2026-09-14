@@ -71,6 +71,11 @@
 
     if(file==='studio.html'){
       document.body.classList.add('studioPolished');
+      const core=$('.startupCore');
+      if(core) core.innerHTML='<img src="assets/reelops-logo-crop.png" alt="ReelOps" style="width:190px;max-width:44vw;filter:invert(1);opacity:.95"><div class="sub">PRODUCTION FIRST · SOFTWARE NEXT</div>';
+      const clientZone=$('a[href="review.html"].studioZone');
+      const setClientRoute=()=>{if(!clientZone)return;const s=state();const stage=(!s.creativeApproval||s.creativeSubmitted&&!s.creativeApproval)?'creative':(s.v4Submitted&&!s.approval?'versions':'creative');clientZone.href='review.html?stage='+stage;};
+      setClientRoute();window.addEventListener('reelops:state',setClientRoute);
       const side=$('.studioSide');
       if(side){
         const block=make('div','stateBlock','<b>Creative Direction</b><span id="studioCreativeState"></span>');
