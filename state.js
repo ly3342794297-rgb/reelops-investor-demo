@@ -86,6 +86,13 @@
     document.head.appendChild(script);
   }
   const file=(location.pathname.split('/').pop()||'').toLowerCase();
+  if (file === 'producer.html' && !document.querySelector('script[data-producer-workflow]')) {
+    const script = document.createElement('script');
+    script.src = 'workflow.js';
+    script.defer = true;
+    script.dataset.producerWorkflow = '1';
+    document.head.appendChild(script);
+  }
   if (file === 'director.html' && !document.querySelector('script[data-director-ux]')) {
     const script = document.createElement('script');
     script.src = 'director-ux.js';
