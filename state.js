@@ -113,9 +113,13 @@
   if(!document.querySelector('link[data-presentation-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='presentation.css';link.dataset.presentationPolish='1';document.head.appendChild(link);}
   if(!document.querySelector('script[data-presentation-polish]')){const script=document.createElement('script');script.src='presentation.js';script.defer=true;script.dataset.presentationPolish='1';document.head.appendChild(script);}
   if(!document.querySelector('script[data-review-guard]')){const script=document.createElement('script');script.src='review-guard.js';script.defer=true;script.dataset.reviewGuard='1';document.head.appendChild(script);}
+  const file=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(['live-action.html','generation.html','post.html'].includes(file)){
+    if(!document.querySelector('link[data-production-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='production.css';link.dataset.productionPolish='1';document.head.appendChild(link);}
+    if(!document.querySelector('script[data-production-polish]')){const script=document.createElement('script');script.src='production.js';script.defer=true;script.dataset.productionPolish='1';document.head.appendChild(script);}
+  }
   if(!document.querySelector('link[data-demo-guide]')){const link=document.createElement('link');link.rel='stylesheet';link.href='demo-guide.css';link.dataset.demoGuide='1';document.head.appendChild(link);}
   if(!document.querySelector('script[data-demo-guide]')){const script=document.createElement('script');script.src='demo-guide.js';script.defer=true;script.dataset.demoGuide='1';document.head.appendChild(script);}
-  const file=(location.pathname.split('/').pop()||'').toLowerCase();
   if((file==='project.html'||file==='producer.html')&&!document.querySelector('script[data-closure-ux]')){const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);}
   if(file==='producer.html'&&!document.querySelector('script[data-producer-workflow]')){const script=document.createElement('script');script.src='workflow.js';script.defer=true;script.dataset.producerWorkflow='1';document.head.appendChild(script);}
   if(file==='director.html'&&!document.querySelector('script[data-director-ux]')){const script=document.createElement('script');script.src='director-ux.js';script.defer=true;script.dataset.directorUx='1';document.head.appendChild(script);}
