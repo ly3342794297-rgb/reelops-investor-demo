@@ -1,149 +1,125 @@
-(() => {
-  const KEY = 'reelops_demo_state_v4';
-  const SCHEMA = 7;
-  const base = {
-    schemaVersion: SCHEMA,
-    project: 'Project Aurora',
-    shot: 'SHOT 08',
-    creativeVersion: 'V2',
-    creativeSubmitted: false,
-    creativeApproval: false,
-    creativeApprovalAt: null,
-    creativeChangesRequested: false,
-    newCreativeFeedback: 0,
-    creativeShared: {brief:true,treatment:true,storyboard:true,reference:true,decisionLog:false},
-    selectedVariant: 'B',
-    aiReady: false,
-    captureComplete: false,
-    packageSent: false,
-    genAsset: false,
-    workingComposite: false,
-    v3Submitted: false,
-    v3SubmittedAt: null,
-    v3ChangesRequested: false,
-    v3ChangesAt: null,
-    v4Draft: false,
-    feedbackResolved: 0,
-    feedbackResolvedItems: [false,false,false],
-    v4Submitted: false,
-    v4SubmittedAt: null,
-    v4ChangesRequested: false,
-    changesRequested: false,
-    approval: false,
-    approvedVersion: null,
-    approvalAt: null,
-    finalMasterReady: false,
-    deliveryItems: [false,false,false,false],
-    deliverables: 0,
-    deliveryRecord: false,
-    deliveryRecordAt: null,
-    delivered: false,
-    archiveRecord: false,
-    archiveAt: null,
-    archived: false,
-    newClientFeedback: 0
+(()=>{
+  const KEY='reelops_demo_state_v4',SCHEMA=8;
+  const now=()=>new Date().toISOString();
+  const base={
+    schemaVersion:SCHEMA,project:'Project Aurora',shot:'SHOT 08',
+    creativeVersion:'V2',creativeSubmitted:false,creativeApproval:false,creativeApprovalAt:null,creativeChangesRequested:false,newCreativeFeedback:0,
+    creativeShared:{brief:true,treatment:true,storyboard:true,reference:true,decisionLog:false},
+    selectedVariant:'B',aiReady:false,captureComplete:false,packageSent:false,genAsset:false,workingComposite:false,
+    v3Submitted:false,v3SubmittedAt:null,v3ChangesRequested:false,v3ChangesAt:null,
+    v4Draft:false,feedbackResolved:0,feedbackResolvedItems:[false,false,false],v4Submitted:false,v4SubmittedAt:null,v4ChangesRequested:false,
+    changesRequested:false,approval:false,approvedVersion:null,approvalAt:null,
+    finalMasterReady:false,deliveryItems:[false,false,false,false],deliverables:0,deliveryRecord:false,deliveryRecordAt:null,delivered:false,
+    archiveRecord:false,archiveAt:null,archived:false,newClientFeedback:0
   };
 
-  function resetDownstream(next){
-    next.genAsset=false;next.workingComposite=false;
-    next.v3Submitted=false;next.v3SubmittedAt=null;next.v3ChangesRequested=false;next.v3ChangesAt=null;
-    next.v4Draft=false;next.feedbackResolvedItems=[false,false,false];next.feedbackResolved=0;
-    next.v4Submitted=false;next.v4SubmittedAt=null;next.v4ChangesRequested=false;next.changesRequested=false;
-    next.approval=false;next.approvedVersion=null;next.approvalAt=null;
-    next.finalMasterReady=false;next.deliveryItems=[false,false,false,false];next.deliveryRecord=false;next.deliveryRecordAt=null;next.delivered=false;next.archiveRecord=false;next.archiveAt=null;next.archived=false;
+  const bool4=v=>{const a=Array.isArray(v)?v.slice(0,4).map(Boolean):[];while(a.length<4)a.push(false);return a};
+  const bool3=(v,fallback=0)=>{if(Array.isArray(v)&&v.length===3)return v.map(Boolean);const n=Math.max(0,Math.min(3,Number(fallback)||0));return [0,1,2].map(i=>i<n)};
+  function resetVersionAndDelivery(n){
+    n.genAsset=false;n.workingComposite=false;n.v3Submitted=false;n.v3SubmittedAt=null;n.v3ChangesRequested=false;n.v3ChangesAt=null;
+    n.v4Draft=false;n.feedbackResolvedItems=[false,false,false];n.feedbackResolved=0;n.v4Submitted=false;n.v4SubmittedAt=null;n.v4ChangesRequested=false;n.changesRequested=false;
+    n.approval=false;n.approvedVersion=null;n.approvalAt=null;n.finalMasterReady=false;n.deliveryItems=[false,false,false,false];n.deliverables=0;
+    n.deliveryRecord=false;n.deliveryRecordAt=null;n.delivered=false;n.archiveRecord=false;n.archiveAt=null;n.archived=false;
+  }
+  function resetDelivery(n){
+    n.finalMasterReady=false;n.deliveryItems=[false,false,false,false];n.deliverables=0;n.deliveryRecord=false;n.deliveryRecordAt=null;n.delivered=false;n.archiveRecord=false;n.archiveAt=null;n.archived=false;
   }
 
-  function enforce(next){
-    if(next.creativeApproval){next.creativeSubmitted=true;next.creativeChangesRequested=false;}
-    if(next.creativeChangesRequested){next.creativeSubmitted=true;next.creativeApproval=false;}
-    if(!next.creativeApproval){next.packageSent=false;resetDownstream(next);}
-    if(next.packageSent){next.aiReady=true;next.captureComplete=true;}
-    if(!next.packageSent){resetDownstream(next);}
-    if(next.genAsset)next.packageSent=true;
-    if(next.workingComposite)next.genAsset=true;
-    if(!next.workingComposite){
-      next.v3Submitted=false;next.v3SubmittedAt=null;next.v3ChangesRequested=false;next.v3ChangesAt=null;
-      next.v4Draft=false;next.feedbackResolvedItems=[false,false,false];next.feedbackResolved=0;next.v4Submitted=false;next.v4SubmittedAt=null;next.v4ChangesRequested=false;next.changesRequested=false;next.approval=false;next.approvedVersion=null;
-    }
-    if(next.v3Submitted){next.workingComposite=true;next.genAsset=true;next.v3SubmittedAt=next.v3SubmittedAt||new Date().toISOString();}
-    if(next.v3ChangesRequested){next.v3Submitted=true;next.v3ChangesAt=next.v3ChangesAt||new Date().toISOString();next.approval=false;next.approvedVersion=null;}
-    if(!Array.isArray(next.feedbackResolvedItems)||next.feedbackResolvedItems.length!==3)next.feedbackResolvedItems=[false,false,false];
-    next.feedbackResolvedItems=next.feedbackResolvedItems.map(Boolean);
-    if(!next.v3ChangesRequested&&!next.v4ChangesRequested)next.feedbackResolvedItems=[false,false,false];
-    next.feedbackResolved=next.feedbackResolvedItems.filter(Boolean).length;
-    if(next.v4Draft){if(!next.v3ChangesRequested||next.feedbackResolved<3)next.v4Draft=false;else next.workingComposite=true;}
-    if(next.v4Submitted){if(!next.v4Draft||next.feedbackResolved<3||next.v4ChangesRequested)next.v4Submitted=false;else next.v4SubmittedAt=next.v4SubmittedAt||new Date().toISOString();}
-    if(next.v4ChangesRequested){next.v4Submitted=false;next.approval=false;next.approvedVersion=null;}
-    next.changesRequested=!!(next.v3ChangesRequested||next.v4ChangesRequested);
-    if(next.approval){
-      const version=next.approvedVersion||(next.v4Submitted?'V4':next.v3Submitted?'V3':'V4');
-      next.approvedVersion=version;next.approvalAt=next.approvalAt||new Date().toISOString();
-      if(version==='V3'){
-        next.v3Submitted=true;next.v3ChangesRequested=false;next.v4Draft=false;next.v4Submitted=false;next.v4ChangesRequested=false;next.feedbackResolvedItems=[false,false,false];next.feedbackResolved=0;next.changesRequested=false;
-      }else{
-        next.approvedVersion='V4';next.v3Submitted=true;next.v3ChangesRequested=true;next.feedbackResolvedItems=[true,true,true];next.feedbackResolved=3;next.v4Draft=true;next.v4Submitted=true;next.v4ChangesRequested=false;next.changesRequested=false;
+  function enforce(input){
+    const n=input;
+    n.feedbackResolvedItems=bool3(n.feedbackResolvedItems,n.feedbackResolved);
+    n.deliveryItems=bool4(n.deliveryItems);
+
+    if(n.creativeChangesRequested){n.creativeSubmitted=true;n.creativeApproval=false;}
+    if(n.creativeApproval){n.creativeSubmitted=true;n.creativeChangesRequested=false;n.creativeApprovalAt=n.creativeApprovalAt||now();}
+    if(!n.creativeApproval){n.packageSent=false;resetVersionAndDelivery(n);}
+
+    if(n.packageSent){n.aiReady=true;n.captureComplete=true;}
+    if(n.genAsset)n.packageSent=true;
+    if(n.workingComposite)n.genAsset=true;
+    if((n.genAsset||n.workingComposite)&&!n.creativeApproval){n.genAsset=false;n.workingComposite=false;}
+    if(!n.packageSent){n.genAsset=false;n.workingComposite=false;n.v3Submitted=false;n.v3ChangesRequested=false;n.v4Draft=false;n.v4Submitted=false;n.v4ChangesRequested=false;n.approval=false;n.approvedVersion=null;}
+
+    if(n.v3Submitted){n.workingComposite=true;n.genAsset=true;n.packageSent=true;n.v3SubmittedAt=n.v3SubmittedAt||now();}
+    if(n.v3ChangesRequested){n.v3Submitted=true;n.v3ChangesAt=n.v3ChangesAt||now();}
+    if(!n.v3ChangesRequested&&!n.v4ChangesRequested&&!(n.approval&&n.approvedVersion==='V4'))n.feedbackResolvedItems=[false,false,false];
+    n.feedbackResolved=n.feedbackResolvedItems.filter(Boolean).length;
+
+    if(n.v4Draft&&(!n.v3ChangesRequested||n.feedbackResolved<3))n.v4Draft=false;
+    if(n.v4Draft)n.workingComposite=true;
+    if(n.v4Submitted&&(!n.v4Draft||n.feedbackResolved<3||n.v4ChangesRequested))n.v4Submitted=false;
+    if(n.v4Submitted){n.v4Draft=true;n.v4SubmittedAt=n.v4SubmittedAt||now();}
+    if(n.v4ChangesRequested){n.v4Submitted=false;n.approval=false;n.approvedVersion=null;}
+
+    if(n.approval){
+      const version=n.approvedVersion||(n.v4Submitted?'V4':(n.v3Submitted&&!n.v3ChangesRequested?'V3':null));
+      const validV3=version==='V3'&&n.v3Submitted&&!n.v3ChangesRequested;
+      const validV4=version==='V4'&&n.v4Submitted&&!n.v4ChangesRequested;
+      if(!validV3&&!validV4){n.approval=false;n.approvedVersion=null;n.approvalAt=null;}
+      else{
+        n.approvedVersion=version;n.approvalAt=n.approvalAt||now();n.creativeApproval=true;n.packageSent=true;n.genAsset=true;n.workingComposite=true;
+        if(version==='V3'){
+          n.v3Submitted=true;n.v3ChangesRequested=false;n.v3ChangesAt=null;n.v4Draft=false;n.v4Submitted=false;n.v4SubmittedAt=null;n.v4ChangesRequested=false;n.feedbackResolvedItems=[false,false,false];n.feedbackResolved=0;
+        }else{
+          n.v3Submitted=true;n.v3ChangesRequested=true;n.v4Draft=true;n.v4Submitted=true;n.v4ChangesRequested=false;n.feedbackResolvedItems=[true,true,true];n.feedbackResolved=3;
+        }
       }
-      next.workingComposite=true;next.genAsset=true;next.packageSent=true;next.aiReady=true;next.captureComplete=true;
-    }else next.approvedVersion=null;
-    if(!next.approval){next.finalMasterReady=false;next.deliveryItems=[false,false,false,false];next.deliveryRecord=false;next.deliveryRecordAt=null;next.delivered=false;next.archiveRecord=false;next.archiveAt=null;next.archived=false;}
-    if(!next.finalMasterReady)next.deliveryItems=[false,false,false,false];
-    if(!Array.isArray(next.deliveryItems))next.deliveryItems=[false,false,false,false];
-    next.deliveryItems=[...next.deliveryItems].slice(0,4).map(Boolean);while(next.deliveryItems.length<4)next.deliveryItems.push(false);
-    next.deliverables=next.deliveryItems.filter(Boolean).length;
-    const deliveryReady=next.approval&&next.finalMasterReady&&next.deliveryItems.every(Boolean);
-    if(next.deliveryRecord&&!deliveryReady)next.deliveryRecord=false;
-    if(next.deliveryRecord){next.delivered=true;next.deliveryRecordAt=next.deliveryRecordAt||new Date().toISOString();}else next.delivered=false;
-    if(next.archiveRecord&&!next.deliveryRecord)next.archiveRecord=false;
-    if(next.archiveRecord){next.archived=true;next.archiveAt=next.archiveAt||new Date().toISOString();}else next.archived=false;
-    next.schemaVersion=SCHEMA;return next;
+    }
+    if(!n.approval)n.approvedVersion=null;
+    n.changesRequested=!!(n.v4ChangesRequested||(n.v3ChangesRequested&&!n.v4Submitted&&!n.approval));
+
+    if(!n.approval)resetDelivery(n);
+    if(n.finalMasterReady&&!n.approval)n.finalMasterReady=false;
+    if(!n.finalMasterReady)n.deliveryItems=[false,false,false,false];
+    n.deliveryItems=bool4(n.deliveryItems);n.deliverables=n.deliveryItems.filter(Boolean).length;
+    const deliveryReady=!!(n.approval&&n.finalMasterReady&&n.deliveryItems.every(Boolean));
+    if(n.deliveryRecord&&!deliveryReady)n.deliveryRecord=false;
+    if(n.deliveryRecord){n.delivered=true;n.deliveryRecordAt=n.deliveryRecordAt||now();}else{n.delivered=false;n.deliveryRecordAt=null;}
+    if(n.archiveRecord&&!n.deliveryRecord)n.archiveRecord=false;
+    if(n.archiveRecord){n.archived=true;n.archiveAt=n.archiveAt||now();}else{n.archived=false;n.archiveAt=null;}
+    n.schemaVersion=SCHEMA;return n;
   }
 
   function normalize(saved={}){
-    const next={...base,...saved,creativeShared:{...base.creativeShared,...(saved.creativeShared||{})}};
+    const n={...base,...saved,creativeShared:{...base.creativeShared,...(saved.creativeShared||{})}};
+    n.feedbackResolvedItems=bool3(saved.feedbackResolvedItems,saved.feedbackResolved);
+    n.deliveryItems=bool4(saved.deliveryItems);
     if((saved.schemaVersion||0)<7){
       const hadRevision=!!(saved.v4Draft||saved.v4Submitted||saved.approval||(Number(saved.feedbackResolved)||0)>0);
-      next.v3Submitted=!!(saved.workingComposite||hadRevision);next.v3ChangesRequested=hadRevision;next.v4ChangesRequested=false;next.changesRequested=hadRevision;next.approvedVersion=saved.approval?'V4':null;if(!hadRevision)next.feedbackResolvedItems=[false,false,false];
+      n.v3Submitted=!!(saved.workingComposite||hadRevision);n.v3ChangesRequested=hadRevision;n.v4ChangesRequested=false;n.approvedVersion=saved.approval?'V4':null;
     }
-    if(!Array.isArray(next.feedbackResolvedItems)||next.feedbackResolvedItems.length!==3){const n=Math.max(0,Math.min(3,Number(next.feedbackResolved)||0));next.feedbackResolvedItems=[0,1,2].map(i=>i<n);}else next.feedbackResolvedItems=next.feedbackResolvedItems.map(Boolean);
-    if(!Array.isArray(saved.deliveryItems)||saved.deliveryItems.length!==4){if(saved.delivered||saved.archived||saved.deliveryRecord||saved.archiveRecord)next.deliveryItems=[true,true,true,true];else next.deliveryItems=[false,false,false,false];}
-    next.finalMasterReady=!!(saved.finalMasterReady||saved.delivered||saved.archived||saved.deliveryRecord||saved.archiveRecord);next.deliveryRecord=!!(saved.deliveryRecord||saved.delivered||saved.archived||saved.archiveRecord);next.archiveRecord=!!(saved.archiveRecord||saved.archived);return enforce(next);
+    if((saved.schemaVersion||0)<8&&saved.approval){
+      n.approvedVersion=saved.approvedVersion||'V4';
+      if(n.approvedVersion==='V4'){n.v3Submitted=true;n.v3ChangesRequested=true;n.feedbackResolvedItems=[true,true,true];n.v4Draft=true;n.v4Submitted=true;n.v4ChangesRequested=false;}
+    }
+    n.finalMasterReady=!!(saved.finalMasterReady||saved.delivered||saved.archived||saved.deliveryRecord||saved.archiveRecord);
+    n.deliveryRecord=!!(saved.deliveryRecord||saved.delivered||saved.archived||saved.archiveRecord);
+    n.archiveRecord=!!(saved.archiveRecord||saved.archived);
+    return enforce(n);
   }
-
-  function read(){try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}');const next=normalize(saved);if(saved.schemaVersion!==SCHEMA)localStorage.setItem(KEY,JSON.stringify(next));return next;}catch(e){return normalize({});}}
-  function write(patch){const current=read();const next={...current,...patch,schemaVersion:SCHEMA};if(patch.creativeShared)next.creativeShared={...current.creativeShared,...patch.creativeShared};if(patch.feedbackResolvedItems)next.feedbackResolvedItems=[...patch.feedbackResolvedItems];else if(Object.prototype.hasOwnProperty.call(patch,'feedbackResolved')){const n=Math.max(0,Math.min(3,Number(patch.feedbackResolved)||0));next.feedbackResolvedItems=[0,1,2].map(i=>i<n);}if(patch.deliveryItems)next.deliveryItems=[...patch.deliveryItems];const safe=enforce(next);localStorage.setItem(KEY,JSON.stringify(safe));window.dispatchEvent(new CustomEvent('reelops:state',{detail:safe}));return safe;}
-  function reset(){const fresh=normalize({});localStorage.setItem(KEY,JSON.stringify(fresh));window.dispatchEvent(new CustomEvent('reelops:state',{detail:fresh}));return fresh;}
-  function approvalVersion(s=read()){return s.approval?(s.approvedVersion||'V4'):null;}
-  function shotLabel(s=read()){if(!s.creativeSubmitted&&!s.creativeApproval)return 'Creative · Internal';if(s.creativeChangesRequested)return `Creative ${s.creativeVersion||'V2'} · Changes`;if(!s.creativeApproval)return `Creative ${s.creativeVersion||'V2'} · In Review`;if(s.approval)return `${approvalVersion(s)} · Approved`;if(s.v4ChangesRequested)return 'V4 · Changes Requested';if(s.v4Submitted)return 'V4 · In Review';if(s.v4Draft)return 'V4 Draft';if(s.v3ChangesRequested)return 'V3 · Changes Requested';if(s.v3Submitted)return 'V3 · In Review';if(s.workingComposite)return 'Working Composite';if(s.genAsset)return 'Selected Asset';if(s.packageSent)return 'AIGC Production';if(s.aiReady)return 'AI Ready';return 'Production Ready';}
-  function creativeLabel(s=read()){if(s.creativeApproval)return `Creative Direction ${s.creativeVersion} · Approved`;if(s.creativeChangesRequested)return `Creative Direction ${s.creativeVersion} · Changes Requested`;if(s.creativeSubmitted)return `Creative Direction ${s.creativeVersion} · In Review`;return `Creative Direction ${s.creativeVersion} · Internal Draft`;}
-  function projectPhase(s=read()){if(s.archived||s.archiveRecord)return 'Archived';if(s.delivered||s.deliveryRecord)return 'Delivered';if(s.approval)return 'Delivery';if(s.v4Submitted||s.v3Submitted&&!s.v3ChangesRequested)return 'Version Review';if(s.v4Draft||s.v4ChangesRequested||s.v3ChangesRequested||s.workingComposite||s.genAsset)return 'Post-production';if(s.packageSent||s.aiReady||s.creativeApproval)return 'Production';if(s.creativeSubmitted||s.creativeChangesRequested)return 'Creative Review';return 'Pre-production';}
-  function deliveryLabel(s=read()){if(s.archiveRecord||s.archived)return 'Archived';if(s.deliveryRecord||s.delivered)return 'Delivery Record Complete';if((s.deliveryItems||[]).every(Boolean))return 'Ready to Deliver';if(s.finalMasterReady)return `${s.deliverables||0} / 4 Deliverables Ready`;if(s.approval)return `${approvalVersion(s)} Approved · Final Master Pending`;return 'Waiting for Version Approval';}
-  function can(action,s=read()){const rules={sendPackage:()=>s.creativeApproval&&s.aiReady,selectAsset:()=>s.packageSent,buildComposite:()=>s.genAsset,submitV3:()=>s.workingComposite&&!s.v3Submitted,requestV3Changes:()=>s.v3Submitted&&!s.v3ChangesRequested&&!s.approval,createV4:()=>s.v3ChangesRequested&&s.workingComposite&&s.feedbackResolved===3,submitV4:()=>s.v4Draft&&s.feedbackResolved===3,approveCurrent:()=>s.v4Submitted||s.v3Submitted&&!s.v3ChangesRequested,createFinalMaster:()=>s.approval,completeDelivery:()=>s.approval&&s.finalMasterReady&&(s.deliveryItems||[]).every(Boolean),archive:()=>s.deliveryRecord};return rules[action]?!!rules[action]():true;}
+  function read(){try{const saved=JSON.parse(localStorage.getItem(KEY)||'{}'),n=normalize(saved);if(saved.schemaVersion!==SCHEMA)localStorage.setItem(KEY,JSON.stringify(n));return n}catch(e){return normalize({})}}
+  function write(patch={}){const current=read(),n={...current,...patch,schemaVersion:SCHEMA};if(patch.creativeShared)n.creativeShared={...current.creativeShared,...patch.creativeShared};if(Object.prototype.hasOwnProperty.call(patch,'feedbackResolvedItems'))n.feedbackResolvedItems=[...patch.feedbackResolvedItems];else if(Object.prototype.hasOwnProperty.call(patch,'feedbackResolved'))n.feedbackResolvedItems=bool3(null,patch.feedbackResolved);if(Object.prototype.hasOwnProperty.call(patch,'deliveryItems'))n.deliveryItems=[...patch.deliveryItems];const safe=enforce(n);localStorage.setItem(KEY,JSON.stringify(safe));window.dispatchEvent(new CustomEvent('reelops:state',{detail:safe}));return safe}
+  function reset(){const n=normalize({});localStorage.setItem(KEY,JSON.stringify(n));window.dispatchEvent(new CustomEvent('reelops:state',{detail:n}));return n}
+  function approvalVersion(s=read()){return s.approval?(s.approvedVersion||'V4'):null}
+  function shotLabel(s=read()){
+    if(!s.creativeSubmitted&&!s.creativeApproval)return 'Creative · Internal';if(s.creativeChangesRequested)return `Creative ${s.creativeVersion||'V2'} · Changes`;if(!s.creativeApproval)return `Creative ${s.creativeVersion||'V2'} · In Review`;
+    if(s.approval)return `${approvalVersion(s)} · Approved`;if(s.v4ChangesRequested)return 'V4 · Changes Requested';if(s.v4Submitted)return 'V4 · In Review';if(s.v4Draft)return 'V4 Draft';if(s.v3ChangesRequested)return 'V3 · Changes Requested';if(s.v3Submitted)return 'V3 · In Review';if(s.workingComposite)return 'Working Composite';if(s.genAsset)return 'Selected Asset';if(s.packageSent)return 'AIGC Production';if(s.aiReady)return 'AI Ready';return 'Production Ready'
+  }
+  function creativeLabel(s=read()){if(s.creativeApproval)return `Creative Direction ${s.creativeVersion} · Approved`;if(s.creativeChangesRequested)return `Creative Direction ${s.creativeVersion} · Changes Requested`;if(s.creativeSubmitted)return `Creative Direction ${s.creativeVersion} · In Review`;return `Creative Direction ${s.creativeVersion} · Internal Draft`}
+  function projectPhase(s=read()){if(s.archiveRecord)return 'Archived';if(s.deliveryRecord)return 'Delivered';if(s.approval)return 'Delivery';if(s.v4Submitted||s.v3Submitted&&!s.v3ChangesRequested)return 'Version Review';if(s.v4ChangesRequested||s.v4Draft||s.v3ChangesRequested||s.workingComposite||s.genAsset)return 'Post-production';if(s.packageSent||s.aiReady||s.creativeApproval)return 'Production';if(s.creativeSubmitted||s.creativeChangesRequested)return 'Creative Review';return 'Pre-production'}
+  function deliveryLabel(s=read()){if(s.archiveRecord)return 'Archived';if(s.deliveryRecord)return 'Delivery Record Complete';if(s.finalMasterReady&&s.deliveryItems.every(Boolean))return 'Ready to Deliver';if(s.finalMasterReady)return `${s.deliverables||0} / 4 Deliverables Ready`;if(s.approval)return `${approvalVersion(s)} Approved · Final Master Pending`;return 'Waiting for Version Approval'}
+  function can(action,s=read()){const rules={sendPackage:()=>s.creativeApproval&&s.aiReady,selectAsset:()=>s.packageSent,buildComposite:()=>s.genAsset,submitV3:()=>s.workingComposite&&!s.v3Submitted,requestV3Changes:()=>s.v3Submitted&&!s.v3ChangesRequested&&!s.approval,createV4:()=>s.v3ChangesRequested&&s.feedbackResolved===3&&!s.v4Draft,submitV4:()=>s.v4Draft&&s.feedbackResolved===3&&!s.v4ChangesRequested&&!s.v4Submitted,approveCurrent:()=>s.v4Submitted||s.v3Submitted&&!s.v3ChangesRequested,createFinalMaster:()=>s.approval,completeDelivery:()=>s.approval&&s.finalMasterReady&&s.deliveryItems.every(Boolean),archive:()=>s.deliveryRecord};return rules[action]?!!rules[action]():true}
   window.ReelOpsState={get:read,set:write,reset,shotLabel,creativeLabel,projectPhase,deliveryLabel,approvalVersion,can,key:KEY};
 
-  if(!document.querySelector('link[data-reelops-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='polish.css';link.dataset.reelopsPolish='1';document.head.appendChild(link);}
-  if(!document.querySelector('script[data-reelops-polish]')){const script=document.createElement('script');script.src='polish.js';script.defer=true;script.dataset.reelopsPolish='1';document.head.appendChild(script);}
-  if(!document.querySelector('link[data-presentation-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='presentation.css';link.dataset.presentationPolish='1';document.head.appendChild(link);}
-  if(!document.querySelector('script[data-presentation-polish]')){const script=document.createElement('script');script.src='presentation.js';script.defer=true;script.dataset.presentationPolish='1';document.head.appendChild(script);}
-  if(!document.querySelector('script[data-review-guard]')){const script=document.createElement('script');script.src='review-guard.js';script.defer=true;script.dataset.reviewGuard='1';document.head.appendChild(script);}
+  const style=(attr,href)=>{if(document.querySelector(`link[${attr}]`))return;const e=document.createElement('link');e.rel='stylesheet';e.href=href;e.setAttribute(attr,'1');document.head.appendChild(e)};
+  const script=(attr,src)=>{if(document.querySelector(`script[${attr}]`))return;const e=document.createElement('script');e.src=src;e.defer=true;e.setAttribute(attr,'1');document.head.appendChild(e)};
+  style('data-reelops-polish','polish.css');script('data-reelops-polish','polish.js');style('data-presentation-polish','presentation.css');script('data-presentation-polish','presentation.js');script('data-review-guard','review-guard.js');
   const file=(location.pathname.split('/').pop()||'').toLowerCase();
-  if(['live-action.html','generation.html','post.html'].includes(file)){
-    if(!document.querySelector('link[data-production-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='production.css';link.dataset.productionPolish='1';document.head.appendChild(link);}
-    if(!document.querySelector('script[data-production-polish]')){const script=document.createElement('script');script.src='production.js';script.defer=true;script.dataset.productionPolish='1';document.head.appendChild(script);}
-  }
-  if(['post.html','review.html','delivery.html'].includes(file)){
-    if(!document.querySelector('link[data-revision-cycle]')){const link=document.createElement('link');link.rel='stylesheet';link.href='revision-cycle.css';link.dataset.revisionCycle='1';document.head.appendChild(link);}
-    if(!document.querySelector('script[data-revision-cycle]')){const script=document.createElement('script');script.src='revision-cycle.js';script.defer=true;script.dataset.revisionCycle='1';document.head.appendChild(script);}
-  }
-  if(['review.html','delivery.html'].includes(file)){
-    if(!document.querySelector('link[data-closure-polish]')){const link=document.createElement('link');link.rel='stylesheet';link.href='closure-polish.css';link.dataset.closurePolish='1';document.head.appendChild(link);}
-    if(!document.querySelector('script[data-closure-polish]')){const script=document.createElement('script');script.src='closure-final.js';script.defer=true;script.dataset.closurePolish='1';document.head.appendChild(script);}
-  }
-  if(!document.querySelector('link[data-nav-semantics]')){const link=document.createElement('link');link.rel='stylesheet';link.href='nav-semantics.css';link.dataset.navSemantics='1';document.head.appendChild(link);}
-  if(!document.querySelector('script[data-nav-semantics]')){const script=document.createElement('script');script.src='nav-semantics.js';script.defer=true;script.dataset.navSemantics='1';document.head.appendChild(script);}
-  if(!document.querySelector('link[data-demo-guide]')){const link=document.createElement('link');link.rel='stylesheet';link.href='demo-guide.css';link.dataset.demoGuide='1';document.head.appendChild(link);}
-  if(!document.querySelector('script[data-demo-guide]')){const script=document.createElement('script');script.src='demo-guide.js';script.defer=true;script.dataset.demoGuide='1';document.head.appendChild(script);}
-  if((file==='project.html'||file==='producer.html')&&!document.querySelector('script[data-truth-sync]')){const script=document.createElement('script');script.src='truth-sync.js';script.defer=true;script.dataset.truthSync='1';document.head.appendChild(script);}
-  if((file==='project.html'||file==='producer.html')&&!document.querySelector('script[data-closure-ux]')){const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);}
-  if(file==='producer.html'&&!document.querySelector('script[data-producer-workflow]')){const script=document.createElement('script');script.src='workflow.js';script.defer=true;script.dataset.producerWorkflow='1';document.head.appendChild(script);}
-  if(file==='director.html'&&!document.querySelector('script[data-director-ux]')){const script=document.createElement('script');script.src='director-ux.js';script.defer=true;script.dataset.directorUx='1';document.head.appendChild(script);}
+  if(['live-action.html','generation.html','post.html'].includes(file)){style('data-production-polish','production.css');script('data-production-polish','production.js')}
+  if(['post.html','review.html','delivery.html'].includes(file)){style('data-revision-cycle','revision-cycle.css');script('data-revision-cycle','revision-cycle.js')}
+  if(['review.html','delivery.html'].includes(file)){style('data-closure-polish','closure-polish.css');script('data-closure-polish','closure-final.js')}
+  style('data-nav-semantics','nav-semantics.css');script('data-nav-semantics','nav-semantics.js');style('data-demo-guide','demo-guide.css');script('data-demo-guide','demo-guide.js');
+  style('data-final-pass-style','final-pass.css');script('data-golden-path-qa','golden-path-qa.js');script('data-final-pass-script','final-pass.js');
+  if(['project.html','producer.html'].includes(file)){script('data-truth-sync','truth-sync.js');script('data-closure-ux','closure-ux.js')}
+  if(file==='producer.html')script('data-producer-workflow','workflow.js');if(file==='director.html')script('data-director-ux','director-ux.js');
 })();
