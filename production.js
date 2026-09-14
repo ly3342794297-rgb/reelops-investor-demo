@@ -21,6 +21,12 @@
     if(file==='live-action.html'){
       document.body.classList.add('productionCapture');
       const anchor=$('.subnav')||$('.appTitle');mount(anchor);
+      const boundary=$('.productionBoundary');
+      if(boundary&&!$('.captureFrameCard')){
+        const frame=document.createElement('section');frame.className='captureFrameCard';
+        frame.innerHTML='<div class="captureFrameMedia"><div class="captureFrameOverlay"><span>A-CAM · TAKE 04</span><b>SHOT 08 · Hero Reveal</b><small>50mm · 24fps · Preserve identity / performance / product</small></div></div><div class="captureFrameMeta"><div><small>DIRECTOR SELECT</small><b>人物表演 + 产品主体</b></div><div><small>AI USE</small><b>环境延展 only</b></div><div><small>HANDOFF TARGET</small><b>Generation Job #018</b></div></div>';
+        boundary.insertAdjacentElement('afterend',frame);
+      }
       const side=$('.sidePanel');
       const gate=document.createElement('div');gate.className='productionGateStrip';side?.insertAdjacentElement('afterbegin',gate);
       const shootState=$$('.stateBlock',side).find(x=>$('b',x)?.textContent.includes('拍摄状态'))?.querySelector('span');
@@ -71,7 +77,6 @@
       document.body.classList.add('productionPost');
       const anchor=$('.subnav')||$('.postHero');mount(anchor);
       const feedbackSection=$$('.appMain section').find(sec=>$('.eyebrow',sec)?.textContent.includes('FEEDBACK'));
-      const main=$('.appMain');
       const locked=document.createElement('div');locked.className='productionLockedMessage';locked.innerHTML='<b>Post Revision 尚未开始。</b><p>先从 AIGC / Capture 获得正式 Selected Asset。只有进入 SHOT 08 Assets 的素材，才能建立 Working Composite 并处理版本修改。</p>';
       if(feedbackSection)feedbackSection.insertAdjacentElement('beforebegin',locked);
       const formalBlock=$$('.stateBlock',$('.sidePanel')).find(x=>$('b',x)?.textContent.includes('当前正式 Version'))?.querySelector('span');
