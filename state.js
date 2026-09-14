@@ -123,5 +123,4 @@
   if((file==='project.html'||file==='producer.html')&&!document.querySelector('script[data-closure-ux]')){const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);}
   if(file==='producer.html'&&!document.querySelector('script[data-producer-workflow]')){const script=document.createElement('script');script.src='workflow.js';script.defer=true;script.dataset.producerWorkflow='1';document.head.appendChild(script);}
   if(file==='director.html'&&!document.querySelector('script[data-director-ux]')){const script=document.createElement('script');script.src='director-ux.js';script.defer=true;script.dataset.directorUx='1';document.head.appendChild(script);}
-  if(file==='live-action.html'&&!document.querySelector('script[data-live-ux]')){const script=document.createElement('script');script.src='live-ux.js';script.defer=true;script.dataset.liveUx='1';document.head.appendChild(script);}
 })();
