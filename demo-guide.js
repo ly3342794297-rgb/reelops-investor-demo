@@ -29,6 +29,7 @@
       if(file==='generation.html')return {href:'post.html?demo=1',label:'进入后期制作 →',ready:!!s.genAsset,need:'先选择 Variant，并明确加入 SHOT 08 Assets。'};
       if(file==='post.html'){
         if(s.approval)return {href:'delivery.html?demo=1',label:'进入交付与归档 →',ready:true,need:''};
+        if(s.v4ChangesRequested)return {href:'#',label:'',ready:false,need:'V4 已被客户要求修改。正式 Version 不应覆盖；生产级下一版应创建 V5。当前概念 Demo 主线只建模 V3 → V4，请用「重置」回到标准投资人路径。'};
         if(!s.workingComposite)return {href:'#',label:'',ready:false,need:'先把 Live Action / AIGC / CG-Post Assets 建立为 Working Composite。'};
         if(!s.v3Submitted)return {href:'review.html?stage=versions&demo=1',label:'进入 V3 客户审阅 →',ready:false,need:'下一步不是直接处理反馈，而是先正式提交 V3。'};
         if(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted)return {href:'review.html?stage=versions&demo=1',label:'进入 V3 客户审阅 →',ready:true,need:''};
@@ -37,6 +38,7 @@
       }
       if(file==='review.html'&&reviewStage()==='versions'){
         if(s.approval)return {href:'delivery.html?demo=1',label:'进入交付与归档 →',ready:true,need:''};
+        if(s.v4ChangesRequested)return {href:'post.html?demo=1',label:'回到 Post 查看第二轮 Revision →',ready:true,need:''};
         if(s.v4Submitted)return {href:'delivery.html?demo=1',label:'确认后进入交付 →',ready:false,need:'当前是 V4 正式审阅。点击「确认 V4」创建独立 Version Approval Record。'};
         if(s.v3ChangesRequested)return {href:'post.html?demo=1',label:'回到 Post 处理 V3 反馈 →',ready:true,need:''};
         if(s.v3Submitted)return {href:'post.html?demo=1',label:'提出修改后回到 Post →',ready:false,need:'当前是 V3 正式审阅。演示路径点击「需要修改」，系统才会创建 3 条 V3 Feedback。'};
@@ -59,6 +61,7 @@
       if(file==='live-action.html'&&!s.packageSent){if(!s.aiReady){mark(document.querySelector('#tracking:not(:checked)')?.closest('.checkCard')||document.querySelector('#camera:not(:checked)')?.closest('.checkCard'));return}mark(document.querySelector('#packageBtn:not(:disabled)')||document.querySelector('#sendBtn'));return}
       if(file==='generation.html'&&!s.genAsset){mark(document.querySelector('#addAsset'));return}
       if(file==='post.html'&&!s.approval){
+        if(s.v4ChangesRequested)return;
         if(!s.workingComposite){mark(document.querySelector('#compositeBtn'));return}
         if(!s.v3Submitted){mark(document.querySelector('#submitV3Btn')||document.querySelector('[data-rev-submit]'));return}
         if(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted){mark(document.querySelector('#revisionAction a[href*="review"]'));return}
@@ -67,6 +70,7 @@
         if(s.v4Draft&&!s.v4Submitted){mark(document.querySelector('#submitBtn'));return}
       }
       if(file==='review.html'&&reviewStage()==='versions'&&!s.approval){
+        if(s.v4ChangesRequested){mark(document.querySelector('a[href*="post.html"]'));return}
         if(s.v4Submitted){mark(document.querySelector('#approve'));return}
         if(s.v3Submitted&&!s.v3ChangesRequested){mark(document.querySelector('#changes'));return}
       }
