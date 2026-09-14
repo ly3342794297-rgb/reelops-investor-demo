@@ -23,8 +23,36 @@
       }
     }
 
+    function setVersionSummary(s){
+      const side=$('#versionsStage .sidePanel');if(!side)return;
+      const blocks=$$('.stateBlock',side);
+      const prev=blocks.find(x=>$('b',x)?.textContent.includes('上一轮反馈'))?.querySelector('span');
+      const notice=$$('.notice',side).find(x=>$('b',x)?.textContent.includes('修改摘要')||$('b',x)?.textContent.includes('首次正式审阅')||$('b',x)?.textContent.includes('VERSION'));
+      const nb=notice?.querySelector('b'),np=notice?.querySelector('p');
+      if(s.approval&&s.approvedVersion==='V3'){
+        if(prev)prev.textContent='无 · V3 直接通过';if(nb)nb.textContent='VERSION APPROVAL';if(np)np.textContent='V3 在首次正式审阅中直接通过，没有创建 V4 Revision。';return;
+      }
+      if(s.approval&&s.approvedVersion==='V4'){
+        if(prev)prev.textContent='3 / 3 已处理';if(nb)nb.textContent='V4 修改摘要';if(np)np.textContent='人物进入提前；背景层次减弱；产品高光保持 V3 方向。';return;
+      }
+      if(s.v4ChangesRequested){
+        if(prev)prev.textContent='V3 · 3 / 3 已处理';if(nb)nb.textContent='V4 · Changes Requested';if(np)np.textContent='客户已对 V4 提出新修改。下一正式版本应创建 V5，而不是覆盖 V4。';return;
+      }
+      if(s.v4Submitted){
+        if(prev)prev.textContent='V3 · 3 / 3 已处理';if(nb)nb.textContent='V4 修改摘要';if(np)np.textContent='人物进入提前；背景层次减弱；产品高光保持 V3 方向。';return;
+      }
+      if(s.v3ChangesRequested){
+        if(prev)prev.textContent='V3 · 3 条修改已创建';if(nb)nb.textContent='V3 修改请求';if(np)np.textContent='3 条反馈现在才成为正式 Revision Input，并全部绑定 SHOT 08 · V3。';return;
+      }
+      if(s.v3Submitted){
+        if(prev)prev.textContent='无 · 首次正式审阅';if(nb)nb.textContent='V3 首次正式审阅';if(np)np.textContent='当前可以直接确认 V3，或者提出修改。此时后期还没有 V3 Feedback。';return;
+      }
+      if(prev)prev.textContent='—';if(nb)nb.textContent='VERSION REVIEW';if(np)np.textContent='等待后期正式提交 Version。内部 Working Composite 不会显示给客户。';
+    }
+
     function syncReview(s){
       if(file!=='review.html')return;
+      setVersionSummary(s);
       if(s.v4ChangesRequested&&!s.approval){
         const title=$('#reviewTitle'),version=$('#reviewVersion'),stage=$('#versionStageState');
         if(title)title.textContent='V4 · 已要求修改';
@@ -59,8 +87,8 @@
     }
 
     function sync(){const s=state();syncPost(s);syncReview(s);syncDelivery(s);syncGlobalEdge(s);syncClosureCopy(s);}
-    const schedule=()=>setTimeout(sync,90);
-    sync();setTimeout(sync,160);window.addEventListener('reelops:state',schedule);
+    const schedule=()=>setTimeout(sync,110);
+    sync();setTimeout(sync,180);window.addEventListener('reelops:state',schedule);
   };
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',boot,{once:true}):boot();
 })();
