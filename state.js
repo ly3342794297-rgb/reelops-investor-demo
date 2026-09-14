@@ -24,6 +24,7 @@
     workingComposite: false,
     v4Draft: false,
     feedbackResolved: 0,
+    feedbackResolvedItems: [false,false,false],
     v4Submitted: false,
     changesRequested: true,
     approval: false,
@@ -36,13 +37,23 @@
   function read(){
     try {
       const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
-      return {...base, ...saved, creativeShared: {...base.creativeShared, ...(saved.creativeShared || {})}};
-    } catch(e){ return {...base, creativeShared:{...base.creativeShared}}; }
+      const next = {...base, ...saved, creativeShared: {...base.creativeShared, ...(saved.creativeShared || {})}};
+      if (!Array.isArray(next.feedbackResolvedItems) || next.feedbackResolvedItems.length !== 3) {
+        const n = Math.max(0,Math.min(3,Number(next.feedbackResolved)||0));
+        next.feedbackResolvedItems = [0,1,2].map(i=>i<n);
+      }
+      next.feedbackResolved = next.feedbackResolvedItems.filter(Boolean).length;
+      return next;
+    } catch(e){ return {...base, creativeShared:{...base.creativeShared}, feedbackResolvedItems:[...base.feedbackResolvedItems]}; }
   }
   function write(patch){
     const current = read();
     const next = {...current, ...patch};
     if (patch.creativeShared) next.creativeShared = {...current.creativeShared, ...patch.creativeShared};
+    if (patch.feedbackResolvedItems) {
+      next.feedbackResolvedItems = [...patch.feedbackResolvedItems];
+      next.feedbackResolved = next.feedbackResolvedItems.filter(Boolean).length;
+    }
     localStorage.setItem(KEY, JSON.stringify(next));
     window.dispatchEvent(new CustomEvent('reelops:state', {detail: next}));
     return next;
