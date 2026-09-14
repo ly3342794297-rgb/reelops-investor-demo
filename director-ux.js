@@ -5,6 +5,18 @@
     const cta=$('.sidePanel a[href^="live-action.html"]');
     if(!cta||!window.ReelOpsState)return;
 
+    if(!document.querySelector('style[data-director-gate]')){
+      const style=document.createElement('style');
+      style.dataset.directorGate='1';
+      style.textContent=`
+        .directorDecisionGate{margin-top:15px;border:1px solid var(--line);background:#fbfbfa;border-radius:14px;padding:13px}
+        .ddgTop{display:flex;align-items:center;gap:8px}.ddgTop b{font-size:11px}.ddgDot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}.ddgDot.ok{background:#17824f;box-shadow:0 0 0 4px rgba(23,130,79,.09)}.ddgDot.wait{background:#b26b10;box-shadow:0 0 0 4px rgba(178,107,16,.09)}
+        .ddgGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:11px}.ddgGrid span{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px;min-width:0}.ddgGrid small{display:block;font-size:7px;letter-spacing:.09em;color:var(--muted);white-space:nowrap}.ddgGrid b{display:block;margin-top:5px;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.directorDecisionGate p{font-size:9px;color:var(--muted);line-height:1.55;margin:10px 0 0}
+        @media(max-width:620px){.ddgGrid{grid-template-columns:1fr}.ddgGrid span{display:flex;align-items:center;justify-content:space-between;gap:8px}.ddgGrid b{margin-top:0}}
+      `;
+      document.head.appendChild(style);
+    }
+
     const gate=document.createElement('div');
     gate.className='directorDecisionGate';
     cta.insertAdjacentElement('beforebegin',gate);
