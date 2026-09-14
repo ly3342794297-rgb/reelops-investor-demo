@@ -139,6 +139,12 @@
   if (!document.querySelector('script[data-reelops-polish]')) {
     const script=document.createElement('script');script.src='polish.js';script.defer=true;script.dataset.reelopsPolish='1';document.head.appendChild(script);
   }
+  if (!document.querySelector('link[data-demo-guide]')) {
+    const link=document.createElement('link');link.rel='stylesheet';link.href='demo-guide.css';link.dataset.demoGuide='1';document.head.appendChild(link);
+  }
+  if (!document.querySelector('script[data-demo-guide]')) {
+    const script=document.createElement('script');script.src='demo-guide.js';script.defer=true;script.dataset.demoGuide='1';document.head.appendChild(script);
+  }
   const file=(location.pathname.split('/').pop()||'').toLowerCase();
   if ((file==='project.html'||file==='producer.html') && !document.querySelector('script[data-closure-ux]')) {
     const script=document.createElement('script');script.src='closure-ux.js';script.defer=true;script.dataset.closureUx='1';document.head.appendChild(script);
