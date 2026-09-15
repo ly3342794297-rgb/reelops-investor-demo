@@ -58,15 +58,16 @@
       const n=nextAction(s),next=$('[data-si="next"]',drawer);next.href=n.href;$('b',next).textContent=n.label;$('span',next).textContent=n.detail;
       const events=[
         ['Brief / Shot Intent','已建立',true,''],
-        [`Creative Direction ${s.creativeVersion||'V2'}`,s.creativeApproval?'Approved':s.creativeChangesRequested?'Changes Requested':s.creativeSubmitted?'In Review':'Internal Draft',!!(s.creativeSubmitted||s.creativeApproval),s.creativeApprovalAt?fmt(s.creativeApprovalAt):''],
-        ['AI Production Package',s.packageSent?'Sent':s.aiReady?'AI Ready':'Pending',!!(s.aiReady||s.packageSent),''],
-        ['Selected Asset',s.genAsset?`Variant ${s.selectedVariant||'B'} · Linked`:'Pending',!!s.genAsset,''],
-        ['Working Composite',s.workingComposite?'Created · Internal':'Pending',!!s.workingComposite,''],
-        ['V3',s.approval&&s.approvedVersion==='V3'?'Approved':s.v3ChangesRequested?'Changes Requested':s.v3Submitted?'In Review':'Not submitted',!!s.v3Submitted,s.approval&&s.approvedVersion==='V3'?fmt(s.approvalAt):s.v3ChangesAt?fmt(s.v3ChangesAt):s.v3SubmittedAt?fmt(s.v3SubmittedAt):''],
-        ['V4',s.approval&&s.approvedVersion==='V4'?'Approved':s.v4ChangesRequested?'Changes Requested':s.v4Submitted?'In Review':s.v4Draft?'Draft':'Not created',!!(s.v4Draft||s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4'),s.approval&&s.approvedVersion==='V4'?fmt(s.approvalAt):s.v4SubmittedAt?fmt(s.v4SubmittedAt):''],
-        ['Final Master',s.finalMasterReady?'Ready':'Pending',!!s.finalMasterReady,''],
-        ['Delivery Record',s.deliveryRecord?'DLV-AURORA-001 · Complete':'Pending',!!s.deliveryRecord,s.deliveryRecordAt?fmt(s.deliveryRecordAt):''],
-        ['Archive Record',s.archiveRecord?'ARC-AURORA-001 · Archived':'Pending',!!s.archiveRecord,s.archiveAt?fmt(s.archiveAt):'']
+        [`Creative Direction ${s.creativeVersion||'V2'}`,s.creativeApproval?'Approved':s.creativeChangesRequested?'Changes Requested':s.creativeSubmitted?'In Review':'Internal Draft',!!(s.creativeSubmitted||s.creativeApproval),fmt(s.creativeApprovalAt||s.creativeSubmittedAt)],
+        ['AI Ready',s.aiReady?'Ready':'Pending',!!s.aiReady,fmt(s.aiReadyAt)],
+        ['AI Production Package',s.packageSent?'Sent':'Pending',!!s.packageSent,fmt(s.packageSentAt)],
+        ['Selected Asset',s.genAsset?`Variant ${s.selectedVariant||'B'} · Linked`:'Pending',!!s.genAsset,fmt(s.genAssetAt)],
+        ['Working Composite',s.workingComposite?'Created · Internal':'Pending',!!s.workingComposite,fmt(s.workingCompositeAt)],
+        ['V3',s.approval&&s.approvedVersion==='V3'?'Approved':s.v3ChangesRequested?'Changes Requested':s.v3Submitted?'In Review':'Not submitted',!!s.v3Submitted,s.approval&&s.approvedVersion==='V3'?fmt(s.approvalAt):fmt(s.v3ChangesAt||s.v3SubmittedAt)],
+        ['V4',s.approval&&s.approvedVersion==='V4'?'Approved':s.v4ChangesRequested?'Changes Requested':s.v4Submitted?'In Review':s.v4Draft?'Draft':'Not created',!!(s.v4Draft||s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4'),s.approval&&s.approvedVersion==='V4'?fmt(s.approvalAt):fmt(s.v4ChangesAt||s.v4SubmittedAt)],
+        ['Final Master',s.finalMasterReady?'Ready':'Pending',!!s.finalMasterReady,fmt(s.finalMasterAt)],
+        ['Delivery Record',s.deliveryRecord?'DLV-AURORA-001 · Complete':'Pending',!!s.deliveryRecord,fmt(s.deliveryRecordAt)],
+        ['Archive Record',s.archiveRecord?'ARC-AURORA-001 · Archived':'Pending',!!s.archiveRecord,fmt(s.archiveAt)]
       ];
       $('[data-si="log"]',drawer).innerHTML=events.map(x=>`<div class="siLogRow ${x[2]?'recorded':''}"><span class="siLogDot"></span><div><b>${x[0]}</b><span>${x[1]}</span></div><time>${x[3]||''}</time></div>`).join('');
     }
