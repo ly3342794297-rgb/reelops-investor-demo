@@ -27,6 +27,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 ## Required invariants
 
 - No Creative Approval → no formal AI handoff.
+- Creative Changes Requested → the same Creative Version cannot be approved again; Director must submit a newer Creative Direction first.
 - AI Ready may be prepared technically before approval, but Project Phase must not advance to formal Production until Creative Approval exists.
 - Capture Complete ≠ AI Ready.
 - Variant ≠ Asset.
@@ -44,9 +45,60 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - A formal Version is immutable. If V4 receives another Changes Requested decision, the next production-grade formal Version should be V5. The current concept Demo intentionally models one revision cycle: V3 → V4.
 - A Creative Direction resubmission after Changes Requested or Approval creates the next Creative Version instead of silently overwriting the previous version label.
 
+## State-machine branches to verify before deployment
+
+### A. Standard investor path
+
+Reset → publish Creative V2 → approve Creative → AI Ready → send AI Package → select Variant B as Asset → Working Composite → submit V3 → request changes → resolve 3/3 Feedback → V4 Draft → submit V4 → approve V4 → Final Master → 4/4 Deliverables → Delivery Record → Archive.
+
+Expected result: Project Overview, Producer, Studio, SHOT 08 Inspector and Delivery all report the same final state.
+
+### B. Creative revision branch
+
+Publish Creative V2 → Client requests changes.
+
+Expected result:
+- Client actions for V2 are locked after Changes Requested.
+- Director becomes the next owner.
+- Director submits a newer Creative Direction version.
+- Only the newly submitted version can receive Creative Approval.
+- Formal production handoff remains blocked until the new Creative Approval exists.
+
+### C. V3 direct-approval branch
+
+Working Composite → submit V3 → Client approves V3 directly.
+
+Expected result:
+- No V4 is invented.
+- Revision Cycle closes at V3.
+- Approved Version is V3 everywhere.
+- Delivery creates Final Master from V3, not a hard-coded V4.
+
+### D. V4 second-revision edge
+
+V3 Changes Requested → V4 submitted → Client requests changes on V4.
+
+Expected result:
+- V4 remains an immutable formal Version.
+- UI states that the next production-grade formal Version should be V5.
+- Current concept Demo does not pretend to model V5.
+
 ## Production-log rule
 
 The shared SHOT 08 inspector records state events rather than chat. Where the demo state creates an event, the record should carry an interaction timestamp: Creative submission/approval, AI Ready, AI package handoff, Selected Asset, Working Composite, V3/V4 decision points, Final Master, Delivery Record, and Archive.
+
+## Client visibility checks
+
+Client Review must never expose:
+- Director internal notes
+- rejected references
+- Prompt
+- failed Variants
+- Working Composite
+- cost / supplier information
+- unreleased Versions
+
+Creative review and Version review must remain separate decisions.
 
 ## Presentation rule
 
@@ -57,6 +109,17 @@ Investor should understand within 30 seconds:
 The UI should prioritize current truth, next owner, blocker, and object lineage before dashboards or feature density.
 
 First paint should not contradict the shared state. Avoid placeholder statuses such as fake Ready counts, future feedback, or future approvals that are only corrected after scripts load.
+
+Before deployment, check at minimum:
+- desktop wide viewport
+- laptop viewport
+- narrow/mobile viewport
+- Project startup transition
+- SHOT 08 Inspector open / close
+- Demo Guide reset and resume behavior
+- Client Review creative / version stage switching
+- disabled / locked button states
+- no stale V3 / V4 visual shown before that Version exists
 
 ## Evidence boundary
 
