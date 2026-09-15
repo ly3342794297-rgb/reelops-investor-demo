@@ -64,7 +64,7 @@
         if(s.v3Submitted)return {href:'post.html?demo=1',label:'提出修改后回到 Post →',ready:false,need:'当前是 V3 正式审阅。演示路径点击「需要修改」，系统才会创建 3 条 V3 Feedback。'};
         return {href:'post.html?demo=1',label:'返回 Post',ready:false,need:'还没有正式提交任何 Version。'};
       }
-      if(file==='delivery.html')return {href:'project.html?demo=1',label:'回到 Project Overview',ready:!!s.archived,need:'完成 Final Master、Deliverables、Delivery Record 与 Archive。'};
+      if(file==='delivery.html')return {href:'project.html?demo=1',label:'回到 Project Overview',ready:!!s.archiveRecord,need:'完成 Final Master、Deliverables、Delivery Record 与 Archive。'};
       return {href:'project.html?demo=1',label:'回到 Project',ready:true,need:''};
     }
 
@@ -95,7 +95,7 @@
         if(s.v4Submitted){mark(document.querySelector('#approve'));return}
         if(s.v3Submitted&&!s.v3ChangesRequested){mark(document.querySelector('#changes'));return}
       }
-      if(file==='delivery.html'&&!s.archived){if(!s.finalMasterReady){mark(document.querySelector('#createMaster'));return}if((s.deliveryItems||[]).some(v=>!v)){mark(document.querySelector('.rowBtn:not(:disabled)')||document.querySelector('#standardSet:not(:disabled)'));return}if(!s.deliveryRecord){mark(document.querySelector('#createDeliveryRecord')||document.querySelector('#completeDelivery')||document.querySelector('[data-action="deliver"]'));return}mark(document.querySelector('#archiveProject')||document.querySelector('[data-action="archive"]'));return}
+      if(file==='delivery.html'&&!s.archiveRecord){if(!s.finalMasterReady){mark(document.querySelector('#createMaster'));return}if((s.deliveryItems||[]).some(v=>!v)){mark(document.querySelector('.rowBtn:not(:disabled)')||document.querySelector('#standardSet:not(:disabled)'));return}if(!s.deliveryRecord){mark(document.querySelector('#createDeliveryRecord')||document.querySelector('#completeDelivery')||document.querySelector('[data-action="deliver"]'));return}mark(document.querySelector('#archiveProject')||document.querySelector('[data-action="archive"]'));return}
     }
     function setEnabled(v){enabled=v;if(v){sessionStorage.setItem(DEMO_KEY,'1');document.body.classList.add('demoMode');launch.textContent='投资人演示';}else{sessionStorage.removeItem(DEMO_KEY);document.body.classList.remove('demoMode');launch.textContent='开启投资人演示';guide.classList.remove('open')}markNextTarget()}
     if(enabled)document.body.classList.add('demoMode');
