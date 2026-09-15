@@ -36,22 +36,25 @@
     const render=()=>{
       const s=ReelOpsState.get();
       const visible=Object.entries(s.creativeShared||{}).filter(([k,v])=>k!=='decisionLog'&&v).length;
-      const approved=!!s.creativeApproval;
-      const treatment=$('.shareToggle[data-key="treatment"]')?.closest('.checkCard')?.querySelector('b');if(treatment)treatment.textContent=`Treatment · ${s.creativeVersion||'V2'}`;
+      const approved=!!s.creativeApproval,changes=!!s.creativeChangesRequested,v=s.creativeVersion||'V2';
+      const treatment=$('.shareToggle[data-key="treatment"]')?.closest('.checkCard')?.querySelector('b');if(treatment)treatment.textContent=`Treatment · ${v}`;
+      const gateTitle=approved?'Creative Approval 已锁定':changes?`Creative Direction ${v} · Changes Requested`:'Creative Approval 尚未锁定';
+      const gateCopy=approved?'正式制作可以沿已确认的 Shot Intent、Storyboard 与 Preserve / Change 规则执行。':changes?`客户已经对 ${v} 要求修改。${v} 保持为历史决策记录，必须创建 ${nextVersion(v)} 并重新提交客户，不能在旧版本上直接改成 Approved。`:'当前允许内部技术准备、测试和现场方案确认；正式制作交接必须完成客户创意确认。';
       gate.innerHTML=`
-        <div class="ddgTop"><span class="ddgDot ${approved?'ok':'wait'}"></span><b>${approved?'Creative Approval 已锁定':'Creative Approval 尚未锁定'}</b></div>
+        <div class="ddgTop"><span class="ddgDot ${approved?'ok':'wait'}"></span><b>${gateTitle}</b></div>
         <div class="ddgGrid">
           <span><small>CLIENT VISIBLE</small><b>${visible} 个对象</b></span>
-          <span><small>CREATIVE VERSION</small><b>${s.creativeVersion||'V2'}</b></span>
+          <span><small>CREATIVE VERSION</small><b>${v}</b></span>
           <span><small>PRODUCTION GATE</small><b>${approved?'OPEN':'PREP ONLY'}</b></span>
         </div>
-        <p>${approved?'正式制作可以沿已确认的 Shot Intent、Storyboard 与 Preserve / Change 规则执行。':'当前允许内部技术准备、测试和现场方案确认；正式制作交接必须完成客户创意确认。'}</p>`;
-      if(submit&&s.creativeChangesRequested)submit.textContent=`提交 ${nextVersion(s.creativeVersion)} 客户创意审阅 →`;
-      if(submit&&s.creativeApproval)submit.textContent=`创建 ${nextVersion(s.creativeVersion)} 并重新审阅 →`;
+        <p>${gateCopy}</p>`;
+      if(submit&&changes)submit.textContent=`提交 ${nextVersion(v)} 客户创意审阅 →`;
+      else if(submit&&approved)submit.textContent=`创建 ${nextVersion(v)} 并重新审阅 →`;
+      else if(submit)submit.textContent=`提交 ${v} 客户创意审阅 →`;
       if(approved){
         cta.href='live-action.html';cta.textContent='进入正式实拍 + AI 协作 →';cta.classList.add('primary');cta.classList.remove('blue');
       }else{
-        cta.href='live-action.html?mode=prep';cta.textContent='进入实拍技术准备 →';cta.classList.remove('primary');cta.classList.add('blue');
+        cta.href='live-action.html?mode=prep';cta.textContent=changes?'创意修订中 · 仅技术准备 →':'进入实拍技术准备 →';cta.classList.remove('primary');cta.classList.add('blue');
       }
     };
     render();window.addEventListener('reelops:state',()=>setTimeout(render,0));
