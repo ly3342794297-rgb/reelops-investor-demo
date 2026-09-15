@@ -24,6 +24,8 @@
         if(action){action.className='revisionAction waiting';action.innerHTML='<div><small>SECOND REVISION CYCLE</small><b>V4 · Changes Requested</b><span>正式 Version 不应被覆盖。生产级逻辑下一次正式提交应创建 V5；当前概念 Demo 只建模 V3 → V4 这一轮 Revision Cycle。</span></div><a class="btn" href="review.html?stage=versions">查看 V4 客户决策 →</a>';}
         if(submit){submit.disabled=true;submit.textContent='下一正式版本应为 V5 · Demo 未建模';}
         if(feedback)feedback.style.display='none';
+        const reviewObj=$('#reviewObj');if(reviewObj){reviewObj.className='versionObj current';const b=$('b',reviewObj),sp=$('span',reviewObj);if(b)b.textContent='V4 · Changes Requested';if(sp)sp.textContent='客户决策已记录 · 下一正式版本应为 V5';}
+        const gate=$('#postGate');if(gate){gate.classList.remove('good');gate.innerHTML='<b>V4 · Changes Requested</b><p>正式 Version 不覆盖。V4 保持为已提交并被客户决策过的历史版本；生产级下一正式版本应创建 V5，当前概念 Demo 不继续模拟第二轮 Revision。</p>';}
         const rail=$('.revisionCycle');if(rail){const steps=$$('.revisionStep',rail),last=steps[steps.length-1];if(last){last.className='revisionStep wait';const b=$('b',last),sp=$('span',last);if(b)b.textContent='V4 Changes Requested';if(sp)sp.textContent='下一正式 Version 应创建 V5';}}
       }
     }
