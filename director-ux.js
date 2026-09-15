@@ -37,6 +37,7 @@
       const s=ReelOpsState.get();
       const visible=Object.entries(s.creativeShared||{}).filter(([k,v])=>k!=='decisionLog'&&v).length;
       const approved=!!s.creativeApproval;
+      const treatment=$('.shareToggle[data-key="treatment"]')?.closest('.checkCard')?.querySelector('b');if(treatment)treatment.textContent=`Treatment · ${s.creativeVersion||'V2'}`;
       gate.innerHTML=`
         <div class="ddgTop"><span class="ddgDot ${approved?'ok':'wait'}"></span><b>${approved?'Creative Approval 已锁定':'Creative Approval 尚未锁定'}</b></div>
         <div class="ddgGrid">
