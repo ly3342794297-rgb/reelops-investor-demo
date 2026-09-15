@@ -45,12 +45,13 @@
 
     function renderInspector(){
       const drawer=$('.shotInspector');if(!drawer)return;const s=state(),reviewCurrent=!!(!s.approval&&((s.v3Submitted&&!s.v3ChangesRequested)||s.v4Submitted));
+      const formalVersion=s.approval?`${s.approvedVersion||'V4'} · Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · In Review':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':'Pending';
       const lineage=[
         ['Creative',s.creativeApproval?'Approved':s.creativeChangesRequested?'Changes Requested':s.creativeSubmitted?'In Review':'Internal',!!s.creativeApproval,!!s.creativeSubmitted&&!s.creativeApproval],
         ['AI Ready',s.aiReady?'Ready':'Pending',!!s.aiReady,!!s.creativeApproval&&!s.aiReady],
         ['Asset',s.genAsset?'Selected':'Pending',!!s.genAsset,!!s.packageSent&&!s.genAsset],
         ['Composite',s.workingComposite?'Created':'Pending',!!s.workingComposite,!!s.genAsset&&!s.workingComposite],
-        ['Version',shot(s),!!(s.v3Submitted||s.v4Draft||s.v4Submitted||s.approval),!!(!s.approval&&(s.v3Submitted||s.v4Draft||s.v4Submitted||s.v4ChangesRequested))],
+        ['Version',formalVersion,!!(s.v3Submitted||s.v4Submitted||s.v4ChangesRequested||s.approval),!!(!s.approval&&(s.v3Submitted||s.v4Submitted||s.v4ChangesRequested))],
         ['Approval',s.approval?`${s.approvedVersion||'V4'} · Recorded`:'Pending',!!s.approval,reviewCurrent],
         ['Delivery',delivery(s),!!(s.deliveryRecord||s.archiveRecord),!!s.approval&&!s.deliveryRecord]
       ];
@@ -64,7 +65,7 @@
         ['Selected Asset',s.genAsset?`Variant ${s.selectedVariant||'B'} · Linked`:'Pending',!!s.genAsset,fmt(s.genAssetAt)],
         ['Working Composite',s.workingComposite?'Created · Internal':'Pending',!!s.workingComposite,fmt(s.workingCompositeAt)],
         ['V3',s.approval&&s.approvedVersion==='V3'?'Approved':s.v3ChangesRequested?'Changes Requested':s.v3Submitted?'In Review':'Not submitted',!!s.v3Submitted,s.approval&&s.approvedVersion==='V3'?fmt(s.approvalAt):fmt(s.v3ChangesAt||s.v3SubmittedAt)],
-        ['V4',s.approval&&s.approvedVersion==='V4'?'Approved':s.v4ChangesRequested?'Changes Requested':s.v4Submitted?'In Review':s.v4Draft?'Draft':'Not created',!!(s.v4Draft||s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4'),s.approval&&s.approvedVersion==='V4'?fmt(s.approvalAt):fmt(s.v4ChangesAt||s.v4SubmittedAt)],
+        ['V4',s.approval&&s.approvedVersion==='V4'?'Approved':s.v4ChangesRequested?'Changes Requested':s.v4Submitted?'In Review':s.v4Draft?'Draft · Internal':'Not created',!!(s.v4Draft||s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4'),s.approval&&s.approvedVersion==='V4'?fmt(s.approvalAt):fmt(s.v4ChangesAt||s.v4SubmittedAt)],
         ['Final Master',s.finalMasterReady?'Ready':'Pending',!!s.finalMasterReady,fmt(s.finalMasterAt)],
         ['Delivery Record',s.deliveryRecord?'DLV-AURORA-001 · Complete':'Pending',!!s.deliveryRecord,fmt(s.deliveryRecordAt)],
         ['Archive Record',s.archiveRecord?'ARC-AURORA-001 · Archived':'Pending',!!s.archiveRecord,fmt(s.archiveAt)]
