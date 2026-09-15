@@ -15,6 +15,11 @@
     function syncPost(s){
       if(file!=='post.html')return;
       const action=$('#revisionAction'),submit=$('#submitBtn'),feedback=$$('.appMain section').find(sec=>$('.eyebrow',sec)?.textContent.includes('FEEDBACK'));
+      const approved=approvedVersion(s),formalTitle=$('#formalVersionTitle'),formalState=$('#formalVersionState');
+      if(approved){
+        if(formalTitle)formalTitle.textContent=`${approved} · Approved`;
+        if(formalState)formalState.textContent=`${approved} · Approved`;
+      }
       if(s.v4ChangesRequested&&!s.approval){
         if(action){action.className='revisionAction waiting';action.innerHTML='<div><small>SECOND REVISION CYCLE</small><b>V4 · Changes Requested</b><span>正式 Version 不应被覆盖。生产级逻辑下一次正式提交应创建 V5；当前概念 Demo 只建模 V3 → V4 这一轮 Revision Cycle。</span></div><a class="btn" href="review.html?stage=versions">查看 V4 客户决策 →</a>';}
         if(submit){submit.disabled=true;submit.textContent='下一正式版本应为 V5 · Demo 未建模';}
@@ -53,6 +58,12 @@
     function syncReview(s){
       if(file!=='review.html')return;
       setVersionSummary(s);
+      const v=approvedVersion(s)||(s.v4Submitted||s.v4ChangesRequested?'V4':s.v3Submitted||s.v3ChangesRequested?'V3':null);
+      const screen=$('#versionsStage .reviewScreen');
+      if(screen&&v)screen.style.backgroundImage=`url('assets/${v==='V3'?'shot08-v3.svg':'shot08-v4.svg'}')`;
+      const tabs=$('#versionTabs');
+      if(tabs){const hasV4=!!(s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4');tabs.style.display=hasV4?'flex':'none';}
+      const summary=$('#revisionSummary');if(summary)summary.style.display=(s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4')?'block':'none';
       if(s.v4ChangesRequested&&!s.approval){
         const title=$('#reviewTitle'),version=$('#reviewVersion'),stage=$('#versionStageState');
         if(title)title.textContent='V4 · 已要求修改';
