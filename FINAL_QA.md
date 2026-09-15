@@ -34,6 +34,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - Asset ≠ Working Composite.
 - Working Composite ≠ Version.
 - Feedback belongs to a submitted Version.
+- Client feedback input is writable only while the current formal Version is actively awaiting a client decision; Approved / Changes Requested / no-Version states must not accept new formal feedback.
 - Version ≠ Approval.
 - Creative Approval ≠ Version Approval.
 - Ready ≠ Delivered.
@@ -118,12 +119,14 @@ Before deployment, check at minimum:
 - desktop wide viewport
 - laptop viewport
 - narrow/mobile viewport, including no horizontal overflow in the sticky app header
+- Studio mobile viewport: role map collapses to a readable vertical workspace list instead of overlapping absolute-positioned role cards
 - short mobile viewport: Investor Demo Guide stays inside the viewport and its body scrolls instead of covering unreachable controls
 - Project startup transition
 - SHOT 08 Inspector open / close, overlay close, Escape close, and body-scroll lock
 - Demo Guide reset returns to the canonical Project Aurora baseline and resume continues from the actual shared state
 - Demo Guide chapter follows Client Review creative / version stage switching without stale chapter copy
 - Client Review creative / version stage switching
+- Client Review feedback form cannot create new formal feedback after Approval / Changes Requested or before a formal Version exists
 - disabled / locked button states
 - no stale V3 / V4 visual shown before that Version exists
 
