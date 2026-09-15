@@ -85,6 +85,7 @@ Expected result:
 - V4 remains an immutable formal Version.
 - UI states that the next production-grade formal Version should be V5.
 - Post must remain visibly in `V4 · Changes Requested`; it must not fall back to `V4 Draft · Internal` or reopen the old V3 feedback list as the active work state.
+- Old V3 feedback must stay hidden even during first paint / runtime hydration of the Post page.
 - V4 submit is disabled and the demo clearly states that V5 is outside the current modeled scope.
 - Current concept Demo does not pretend to model V5.
 
@@ -120,6 +121,7 @@ Before deployment, check at minimum:
 - laptop viewport
 - narrow/mobile viewport, including no horizontal overflow in the sticky app header
 - Studio mobile viewport: role map collapses to a readable vertical workspace list instead of overlapping absolute-positioned role cards
+- Studio Client Review entry is not interactable until shared state hydration has chosen Creative Review vs Version Review correctly
 - short mobile viewport: Investor Demo Guide stays inside the viewport and its body scrolls instead of covering unreachable controls
 - Project startup transition
 - SHOT 08 Inspector open / close, overlay close, Escape close, and body-scroll lock
