@@ -73,7 +73,8 @@ Expected result:
 - No V4 is invented.
 - Revision Cycle closes at V3.
 - Approved Version is V3 everywhere.
-- Delivery creates Final Master from V3, not a hard-coded V4.
+- V3 direct approval must not surface V3 / V4 compare controls or a V4 revision summary.
+- Delivery creates Final Master from V3 and uses the V3 visual source, never a hard-coded or first-paint V4.
 
 ### D. V4 second-revision edge
 
@@ -82,6 +83,8 @@ V3 Changes Requested → V4 submitted → Client requests changes on V4.
 Expected result:
 - V4 remains an immutable formal Version.
 - UI states that the next production-grade formal Version should be V5.
+- Post must remain visibly in `V4 · Changes Requested`; it must not fall back to `V4 Draft · Internal` or reopen the old V3 feedback list as the active work state.
+- V4 submit is disabled and the demo clearly states that V5 is outside the current modeled scope.
 - Current concept Demo does not pretend to model V5.
 
 ## Production-log rule
@@ -114,7 +117,7 @@ First paint should not contradict the shared state. Avoid placeholder statuses s
 Before deployment, check at minimum:
 - desktop wide viewport
 - laptop viewport
-- narrow/mobile viewport
+- narrow/mobile viewport, including no horizontal overflow in the sticky app header
 - Project startup transition
 - SHOT 08 Inspector open / close
 - Demo Guide reset and resume behavior
