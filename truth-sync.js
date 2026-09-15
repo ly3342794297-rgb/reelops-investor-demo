@@ -25,12 +25,20 @@
       if(!s.archiveRecord)return ['delivery.html','归档 Project Aurora','Delivery Record 完成后闭合整个项目上下文。','制片统筹'];
       return ['project.html','Project Aurora 已闭环','Archive Record 已形成。','—'];
     };
+    const cls=(el,done,current)=>{if(el)el.className='recordObj '+(done?'done':current?'live':'')};
     const renderProject=s=>{
       const a=next(s),list=$('#todayList');
       if(list)list.innerHTML=`<div class="todayItem primaryAction chronologyTruth"><div class="todayNum">01</div><div><b>${a[1]}</b><p>${a[2]}</p></div><a href="${a[0]}">打开 →</a></div>`;
       const summary=$('#summaryShot');if(summary)summary.textContent=window.ReelOpsState.shotLabel(s);
       const hero=$('#heroShot');if(hero)hero.textContent='SHOT 08 · '+window.ReelOpsState.shotLabel(s);
       const delivery=$('#summaryDelivery');if(delivery)delivery.textContent=window.ReelOpsState.deliveryLabel(s);
+      const client=$('#summaryClient');if(client)client.textContent=s.approval?`${s.approvedVersion||'V4'} · Version Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · Waiting for client':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · Waiting for client':s.creativeApproval?'Creative Approved · 成片未提交':s.creativeSubmitted?'Creative Direction · Waiting for client':'Creative Direction · Not published';
+      const reviewCurrent=!s.approval&&((s.v3Submitted&&!s.v3ChangesRequested)||s.v4Submitted);
+      cls($('#recordAsset'),!!s.genAsset,!!s.packageSent&&!s.genAsset);
+      cls($('#recordComposite'),!!s.workingComposite,!!s.genAsset&&!s.workingComposite);
+      cls($('#recordVersion'),!!(s.v3Submitted||s.v4Draft||s.v4Submitted||s.approval),!!s.workingComposite&&!s.v3Submitted);
+      cls($('#recordApproval'),!!s.approval,reviewCurrent);
+      cls($('#recordDelivery'),!!(s.deliveryRecord||s.archiveRecord),!!s.approval&&!s.deliveryRecord);
     };
     const renderProducer=s=>{
       const a=next(s),list=$('#attentionList');
