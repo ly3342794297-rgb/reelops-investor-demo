@@ -18,7 +18,7 @@
       const creativeSubtitle=$('#creativeStage .reviewHero .small'),versionSubtitle=$('#versionsStage .reviewHero .small');
       const render=()=>{
         const s=state();
-        if(creativeSubtitle)creativeSubtitle.textContent=s.creativeApproval?'Creative Approval 已记录 · 成片仍需单独确认':s.creativeSubmitted?'Brief → Treatment → Storyboard → Shot Direction → 客户决策':'尚未发布 · 客户空间不会显示内部草稿';
+        if(creativeSubtitle)creativeSubtitle.textContent=s.creativeApproval?'Creative Approval 已记录 · 成片仍需单独确认':s.creativeChangesRequested?'Changes Requested 已记录 · 等待导演提交修订后的 Creative Direction':s.creativeSubmitted?'Brief → Treatment → Storyboard → Shot Direction → 客户决策':'尚未发布 · 客户空间不会显示内部草稿';
         const current=s.approval?(s.approvedVersion||'V4'):s.v4ChangesRequested?'V4':s.v4Submitted?'V4':s.v3Submitted?'V3':null;
         if(versionSubtitle){
           if(s.approval)versionSubtitle.textContent=`${current} Version Approval 已记录 · 下一步 Final Master / Delivery`;
@@ -28,7 +28,12 @@
           else if(s.v3Submitted)versionSubtitle.textContent='V3 · In Review · 等待客户确认或提出修改';
           else versionSubtitle.textContent='正式 Version 尚未提交 · Working Composite 对客户不可见';
         }
-        if(cReceipt){cReceipt.className='reviewDecisionReceipt '+(s.creativeApproval?'':'pending');cReceipt.innerHTML=s.creativeApproval?`<small>CREATIVE APPROVAL RECORD</small><b>${s.creativeVersion||'V2'} · Approved</b><span>${fmt(s.creativeApprovalAt)} · 制作方向已锁定；这不是 Version Approval。</span>`:`<small>CREATIVE DECISION</small><b>${s.creativeSubmitted?'等待客户确认':'等待导演发布'}</b><span>${s.creativeSubmitted?'确认或要求修改，都会形成明确决策状态。':'内部草稿不会自动进入客户空间。'}</span>`;}
+        if(cReceipt){
+          cReceipt.className='reviewDecisionReceipt '+(s.creativeApproval?'':'pending');
+          if(s.creativeApproval)cReceipt.innerHTML=`<small>CREATIVE APPROVAL RECORD</small><b>${s.creativeVersion||'V2'} · Approved</b><span>${fmt(s.creativeApprovalAt)} · 制作方向已锁定；这不是 Version Approval。</span>`;
+          else if(s.creativeChangesRequested)cReceipt.innerHTML=`<small>CREATIVE DECISION</small><b>${s.creativeVersion||'V2'} · Changes Requested</b><span>本轮客户决策已经记录。旧版本保持可追溯，等待导演形成下一版 Creative Direction 后重新提交。</span>`;
+          else cReceipt.innerHTML=`<small>CREATIVE DECISION</small><b>${s.creativeSubmitted?'等待客户确认':'等待导演发布'}</b><span>${s.creativeSubmitted?'确认或要求修改，都会形成明确决策状态。':'内部草稿不会自动进入客户空间。'}</span>`;
+        }
         if(vReceipt){
           vReceipt.className='reviewDecisionReceipt '+(s.approval?'':'pending');
           if(s.approval)vReceipt.innerHTML=`<small>VERSION APPROVAL RECORD</small><b>SHOT 08 · ${current} · Approved</b><span>${fmt(s.approvalAt)} · 该记录独立于 ${current} Version 对象。</span>`;
@@ -38,7 +43,7 @@
           else vReceipt.innerHTML='<small>VERSION DECISION</small><b>等待后期正式提交</b><span>内部 Composite 与测试版本不会显示。</span>';
         }
         const creativeActions=$('#creativeStage .reviewActions'),versionActions=$('#versionsStage .reviewActions');
-        if(creativeActions)creativeActions.style.display=s.creativeApproval?'none':'';
+        if(creativeActions)creativeActions.style.display=s.creativeApproval||s.creativeChangesRequested?'none':'';
         if(versionActions)versionActions.style.display=s.approval||s.v3ChangesRequested&&!s.v4Submitted||s.v4ChangesRequested?'none':'';
       };
       render();window.addEventListener('reelops:state',()=>setTimeout(render,0));setTimeout(render,120);
