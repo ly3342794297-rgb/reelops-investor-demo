@@ -34,6 +34,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - Asset ≠ Working Composite.
 - Working Composite ≠ Version.
 - Feedback belongs to a submitted Version.
+- The canonical V3 feedback set is identical across Director, Post, and Client Review: 主体提前一点进入 / 背景层次再弱一点 / 最后停留多 1 秒.
 - Client feedback input is writable only while the current formal Version is actively awaiting a client decision; Approved / Changes Requested / no-Version states must not accept new formal feedback.
 - Submitting a new formal Version starts a new client-feedback round. V3 feedback counts must not carry into V4's “本轮新增反馈”.
 - Studio routing treats V4 Draft as internal. Only a formal submitted / decided V3 or V4 may route the Client Review entry to Version Review.
@@ -124,12 +125,14 @@ Before deployment, check at minimum:
 - narrow/mobile viewport, including no horizontal overflow in the sticky app header
 - Studio mobile viewport: role map collapses to a readable vertical workspace list instead of overlapping absolute-positioned role cards
 - Studio Client Review entry is not interactable until shared state hydration has chosen Creative Review vs Version Review correctly
+- Delivery narrow/mobile viewport keeps Deliverable name + current status + action readable on one row; secondary format / ratio metadata may collapse rather than forcing a broken grid
 - short mobile viewport: Investor Demo Guide stays inside the viewport and its body scrolls instead of covering unreachable controls
 - Project startup transition
 - SHOT 08 Inspector open / close, overlay close, Escape close, and body-scroll lock
 - Demo Guide reset returns to the canonical Project Aurora baseline and resume continues from the actual shared state
 - Demo Guide chapter follows Client Review creative / version stage switching without stale chapter copy
 - Client Review creative / version stage switching
+- Client Review decision controls are not interactable or visually misleading before shared-state hydration completes
 - Client Review feedback form cannot create new formal feedback after Approval / Changes Requested or before a formal Version exists
 - submitting V4 resets “本轮新增反馈” to 0 instead of inheriting the three V3 revision items
 - disabled / locked button states
