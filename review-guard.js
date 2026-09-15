@@ -1,5 +1,5 @@
 (()=>{
-  const pre=document.createElement('style');pre.dataset.reviewGuardPrepaint='1';pre.textContent='.reviewPage #versionNotice{visibility:hidden!important}';document.head.appendChild(pre);
+  const pre=document.createElement('style');pre.dataset.reviewGuardPrepaint='1';pre.textContent='.reviewPage #versionNotice,.reviewPage #versionTabs,.reviewPage #revisionSummary{visibility:hidden!important}';document.head.appendChild(pre);
   const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   ready(()=>{
     if((location.pathname.split('/').pop()||'').toLowerCase()!=='review.html'){pre.remove();return;}
