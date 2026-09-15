@@ -1,7 +1,8 @@
 (()=>{
+  const pre=document.createElement('style');pre.dataset.reviewGuardPrepaint='1';pre.textContent='.reviewPage #versionNotice{visibility:hidden!important}';document.head.appendChild(pre);
   const ready=fn=>document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn,{once:true}):fn();
   ready(()=>{
-    if((location.pathname.split('/').pop()||'').toLowerCase()!=='review.html')return;
+    if((location.pathname.split('/').pop()||'').toLowerCase()!=='review.html'){pre.remove();return;}
     const $=s=>document.querySelector(s),state=()=>window.ReelOpsState?.get?.()||{};
     const canVersionDecide=s=>!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted&&!s.v4ChangesRequested&&!s.approval||s.v4Submitted&&!s.v4ChangesRequested&&!s.approval);
     const feedbackForm=$('#feedbackForm');
@@ -41,6 +42,6 @@
       if(!hasV4){document.querySelectorAll('#versionsStage .reviewPanel').forEach(p=>p.classList.toggle('active',p.dataset.panel==='changes'));document.querySelectorAll('#versionsStage .reviewTabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab==='changes'));}
     }
     const sync=()=>{queueMicrotask(apply);setTimeout(apply,0)};
-    apply();window.addEventListener('reelops:state',sync);
+    apply();pre.remove();window.addEventListener('reelops:state',sync);
   });
 })();
