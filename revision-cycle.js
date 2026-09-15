@@ -24,7 +24,7 @@
       const feedback=$('#feedbackSection')||$$('.appMain section').find(sec=>$('.eyebrow',sec)?.textContent.includes('FEEDBACK'));
       if(feedback&&!$('#revisionAction')){const a=document.createElement('div');a.id='revisionAction';a.className='revisionAction';feedback.insertAdjacentElement('beforebegin',a)}
       const render=()=>{
-        const s=state(),rail=$('.revisionCycle'),a=$('#revisionAction'),revisionInput=!!(s.v3ChangesRequested&&!s.approval&&s.approvedVersion!=='V3');
+        const s=state(),rail=$('.revisionCycle'),a=$('#revisionAction'),revisionInput=!!(s.v3ChangesRequested&&!s.v4ChangesRequested&&!s.approval&&s.approvedVersion!=='V3');
         if(rail)rail.innerHTML=cycleHTML(s);
         document.body.classList.toggle('waitingV3Decision',!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval));
         document.body.classList.toggle('hasRevisionInput',revisionInput);document.body.classList.add('postRuntimeReady');
@@ -35,11 +35,11 @@
           else if(!s.v3Submitted)a.innerHTML='<div><small>NEXT VERSION EVENT</small><b>正式提交 V3</b><span>只有 Submitted Version 才能接收客户正式 Feedback。</span></div>';
           else if(s.approval&&s.approvedVersion==='V3'){a.className='revisionAction done';a.innerHTML='<div><small>VERSION DECISION</small><b>V3 · Approved</b><span>Revision Cycle 在 V3 结束，可直接进入交付。</span></div><a class="btn" href="delivery.html">进入交付 →</a>'}
           else if(!s.v3ChangesRequested&&!s.approval){a.className='revisionAction waiting';a.innerHTML='<div><small>WAITING FOR CLIENT</small><b>V3 · In Review</b><span>Post 不能提前制造“未来反馈”。</span></div><a class="btn" href="review.html?stage=versions">打开客户审阅 →</a>'}
+          else if(s.v4ChangesRequested){a.className='revisionAction waiting';a.innerHTML='<div><small>SECOND REVISION CYCLE</small><b>V4 · Changes Requested</b><span>正式 Version 不覆盖；下一正式版本应创建 V5。当前概念 Demo 不继续模拟第二轮。</span></div>'}
           else if(s.v3ChangesRequested&&(s.feedbackResolved||0)<3){a.innerHTML=`<div><small>REVISION INPUT</small><b>V3 · Changes Requested</b><span>当前已处理 ${s.feedbackResolved||0} / 3 条正式 Feedback。</span></div>`}
           else if(s.v3ChangesRequested&&!s.v4Draft){a.className='revisionAction done';a.innerHTML='<div><small>REVISION READY</small><b>3 / 3 Feedback Resolved</b><span>可以形成 V4 Draft。</span></div>'}
           else if(s.v4Draft&&!s.v4Submitted&&!s.v4ChangesRequested){a.innerHTML='<div><small>NEXT VERSION EVENT</small><b>正式提交 V4</b><span>Draft 对客户不可见；Submit 后才进入 Client Review。</span></div>'}
           else if(s.v4Submitted&&!s.approval){a.className='revisionAction waiting';a.innerHTML='<div><small>WAITING FOR CLIENT</small><b>V4 · In Review</b><span>Post 不能替客户创建 Version Approval。</span></div><a class="btn" href="review.html?stage=versions">打开 V4 审阅 →</a>'}
-          else if(s.v4ChangesRequested){a.className='revisionAction waiting';a.innerHTML='<div><small>SECOND REVISION CYCLE</small><b>V4 · Changes Requested</b><span>正式 Version 不覆盖；下一正式版本应创建 V5。当前概念 Demo 不继续模拟第二轮。</span></div>'}
           else if(s.approval){a.className='revisionAction done';a.innerHTML=`<div><small>VERSION APPROVAL</small><b>${s.approvedVersion||'V4'} · Approved</b><span>独立 Approval Record 已形成。</span></div><a class="btn" href="delivery.html">进入交付 →</a>`}
         }
       };
