@@ -34,7 +34,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - Asset ≠ Working Composite.
 - Working Composite ≠ Version.
 - Feedback belongs to a submitted Version.
-- The canonical V3 feedback set is identical across Director, Post, and Client Review: 主体提前一点进入 / 背景层次再弱一点 / 最后停留多 1 秒.
+- The canonical V3 feedback set is identical across Director, Post, Client Review, and `DEMO_SCRIPT.md`: 主体提前一点进入 / 背景层次再弱一点 / 最后停留多 1 秒.
 - Client feedback input is writable only while the current formal Version is actively awaiting a client decision; Approved / Changes Requested / no-Version states must not accept new formal feedback.
 - Submitting a new formal Version starts a new client-feedback round. V3 feedback counts must not carry into V4's “本轮新增反馈”.
 - Client progress treats only submitted / decided formal Versions as Version state; V4 Draft remains internal and Delivery completion is sourced from Delivery Record.
@@ -91,6 +91,7 @@ Expected result:
 - Post must remain visibly in `V4 · Changes Requested`; it must not fall back to `V4 Draft · Internal` or reopen the old V3 feedback list as the active work state.
 - Old V3 feedback must stay hidden even during first paint / runtime hydration of the Post page. Every Post runtime layer that can change feedback visibility must exclude `v4ChangesRequested`.
 - Post production-route copy must identify the second revision as V4 Changes Requested / next V5, not report old V3 feedback resolution as the current work state.
+- Producer lifecycle must keep Post as the current stage during active V3 revision and V4 second revision; it must not mark Post complete merely because V3 was submitted earlier.
 - V4 submit is disabled and the demo clearly states that V5 is outside the current modeled scope.
 - Current concept Demo does not pretend to model V5.
 
