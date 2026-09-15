@@ -10,6 +10,7 @@
     const once=(cls,build)=>{if(document.querySelector('.'+cls))return null;return build();};
     const activeChanges=s=>!!(s.v4ChangesRequested||(s.v3ChangesRequested&&!s.v4Submitted&&!s.approval));
     const ownerFor=s=>{
+      if(s.archiveRecord)return ['—','Project closed'];
       if(!s.creativeSubmitted||s.creativeChangesRequested)return ['导演 / 创意','Director Workspace'];
       if(!s.creativeApproval)return ['客户','Client Creative Review'];
       if(!s.aiReady||!s.packageSent)return ['实拍 + AI','Capture Workspace'];
