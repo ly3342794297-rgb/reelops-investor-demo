@@ -32,7 +32,7 @@
       const summary=$('#summaryShot');if(summary)summary.textContent=window.ReelOpsState.shotLabel(s);
       const hero=$('#heroShot');if(hero)hero.textContent='SHOT 08 · '+window.ReelOpsState.shotLabel(s);
       const delivery=$('#summaryDelivery');if(delivery)delivery.textContent=window.ReelOpsState.deliveryLabel(s);
-      const client=$('#summaryClient');if(client)client.textContent=s.approval?`${s.approvedVersion||'V4'} · Version Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · Waiting for client':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · Waiting for client':s.creativeApproval?'Creative Approved · 成片未提交':s.creativeSubmitted?'Creative Direction · Waiting for client':'Creative Direction · Not published';
+      const client=$('#summaryClient');if(client)client.textContent=s.approval?`${s.approvedVersion||'V4'} · Version Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · Waiting for client':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · Waiting for client':s.creativeChangesRequested?'Creative Direction · Changes Requested':s.creativeApproval?'Creative Approved · 成片未提交':s.creativeSubmitted?'Creative Direction · Waiting for client':'Creative Direction · Not published';
       const reviewCurrent=!s.approval&&((s.v3Submitted&&!s.v3ChangesRequested)||s.v4Submitted);
       cls($('#recordAsset'),!!s.genAsset,!!s.packageSent&&!s.genAsset);
       cls($('#recordComposite'),!!s.workingComposite,!!s.genAsset&&!s.workingComposite);
