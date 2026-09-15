@@ -1,12 +1,12 @@
 (()=>{
   const boot=()=>{
     const file=(location.pathname.split('/').pop()||'project.html').toLowerCase();
-    const qs=new URLSearchParams(location.search);
+    const params=()=>new URLSearchParams(location.search);
     const allowed=['project.html','studio.html','producer.html','director.html','live-action.html','generation.html','post.html','review.html','delivery.html'];
     if(!allowed.includes(file))return;
     const DEMO_KEY='reelops_investor_demo_mode';
     const isEntry=file==='project.html';
-    if(qs.get('demo')==='1')sessionStorage.setItem(DEMO_KEY,'1');
+    if(params().get('demo')==='1')sessionStorage.setItem(DEMO_KEY,'1');
     let enabled=sessionStorage.getItem(DEMO_KEY)==='1';
     if(!isEntry&&!enabled)return;
 
@@ -18,7 +18,7 @@
       {n:5,k:'DELIVERY CLOSURE',title:'Approved 之后，项目仍然没有结束。',point:'Final Master → Deliverables → Delivery Record → Archive，项目才真正闭环。',files:['delivery.html']}
     ];
     function state(){try{return window.ReelOpsState?.get?.()||{}}catch(e){return {}}}
-    function reviewStage(){return qs.get('stage')==='creative'?'creative':'versions'}
+    function reviewStage(){return params().get('stage')==='creative'?'creative':'versions'}
     function currentChapter(){if(file==='review.html')return reviewStage()==='creative'?chapters[1]:chapters[3];return chapters.find(c=>c.files.includes(file))||chapters[0]}
     function resumeTarget(s){
       if(!s.creativeSubmitted||s.creativeChangesRequested)return {href:'director.html?demo=1',label:s.creativeChangesRequested?'回到导演修订创意 →':'进入导演 / 创意 →',need:s.creativeChangesRequested?'客户已要求修改 Creative Direction，下一步由导演形成新版本。':'发布 Creative Direction。'};
@@ -108,8 +108,9 @@
     }
     launch.addEventListener('click',()=>{if(!enabled){setEnabled(true);render();guide.classList.add('open');return}render();guide.classList.toggle('open')});
     window.addEventListener('reelops:state',()=>{if(enabled)setTimeout(render,0)});
+    if(file==='review.html')document.querySelectorAll('.stageBtn').forEach(btn=>btn.addEventListener('click',()=>{if(enabled)setTimeout(render,0)}));
     window.addEventListener('keydown',e=>{if((e.key==='g'||e.key==='G')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){if(!enabled)setEnabled(true);render();guide.classList.toggle('open')}});
-    setEnabled(enabled);if(qs.get('demo')==='1'){render();setTimeout(()=>guide.classList.add('open'),220)}
+    setEnabled(enabled);if(params().get('demo')==='1'){render();setTimeout(()=>guide.classList.add('open'),220)}
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
