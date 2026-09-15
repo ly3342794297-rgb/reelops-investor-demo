@@ -63,7 +63,7 @@
         if(n<4)return ['准备全部 Deliverables','制片 / 交付',`${n} / 4 Ready · 交付件统一来自 Final Master`];
         if(!s.deliveryRecord)return ['完成客户交付','制片统筹','创建独立 Delivery Record，而不是只标记“已发送”'];
         if(!s.archiveRecord)return ['归档 Project Aurora','制片统筹','闭合 Creative → Production → Approval → Delivery 关系'];
-        return ['项目已闭环','Archive Record','完整生产与交付记录已形成'];
+        return ['项目已闭环','—','完整生产与交付记录已形成'];
       };
       const render=()=>{
         const s=state(),n=next(s),ready=(s.deliveryItems||[]).filter(Boolean).length,v=s.approvedVersion||'V4';
