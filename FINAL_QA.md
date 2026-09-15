@@ -130,6 +130,7 @@ Before deployment, check at minimum:
 - narrow/mobile viewport, including no horizontal overflow in the sticky app header
 - Studio mobile viewport: role map collapses to a readable vertical workspace list instead of overlapping absolute-positioned role cards
 - Studio Client Review entry is not interactable until shared state hydration has chosen Creative Review vs Version Review correctly
+- Director submit / client-view / production CTA controls stay non-interactive until shared state hydration has selected the correct Creative revision / approval state
 - Delivery stateful rail / matrix / closure grid and header state do not flash stale placeholder values before shared-state hydration completes
 - Delivery narrow/mobile viewport keeps Deliverable name + current status + action readable on one row; secondary format / ratio metadata may collapse rather than forcing a broken grid
 - Post state-changing action buttons stay hidden until canonical revision runtime state has rendered; stale static V3/V4 actions must not be briefly actionable during first paint
@@ -139,7 +140,7 @@ Before deployment, check at minimum:
 - Demo Guide reset returns to the canonical Project Aurora baseline and resume continues from the actual shared state
 - Demo Guide chapter follows Client Review creative / version stage switching without stale chapter copy
 - Client Review creative / version stage switching
-- Client Review decision controls are not interactable or visually misleading before shared-state hydration completes
+- Client Review decision controls and feedback input stay non-interactive until shared-state hydration completes, then only the current formal decision state may expose them
 - Client Review feedback form cannot create new formal feedback after Approval / Changes Requested or before a formal Version exists
 - Client Review V4 revision summary and notice use the canonical third feedback: 最后停留多 1 秒 / 最后停留已延长 1 秒, including after all runtime render layers finish
 - submitting V4 resets “本轮新增反馈” to 0 instead of inheriting the three V3 revision items
