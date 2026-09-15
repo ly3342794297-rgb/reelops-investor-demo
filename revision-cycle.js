@@ -39,6 +39,11 @@
           if(b)b.textContent='V4 · Changes Requested';
           if(sp)sp.textContent='客户决策已记录 · 下一正式版本应为 V5';
         }
+        if(s.v4ChangesRequested&&!s.approval){
+          const gate=$('#postGate'),submit=$('#submitBtn');
+          if(gate){gate.classList.remove('good');gate.innerHTML='<b>V4 · Changes Requested</b><p>正式 Version 不覆盖。V4 保持为已经提交并被客户决策过的历史版本；生产级下一正式版本应创建 V5，当前概念 Demo 不继续模拟第二轮 Revision。</p>';}
+          if(submit){submit.disabled=true;submit.textContent='下一正式版本应为 V5 · Demo 未建模';}
+        }
         if(a){
           a.className='revisionAction';
           if(!s.workingComposite)a.innerHTML='<div><small>REVISION CYCLE</small><b>先建立 Working Composite</b><span>内部工作状态不是正式 Version。</span></div>';
