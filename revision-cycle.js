@@ -17,6 +17,7 @@
       ];
       return rows.map((x,i)=>`<div class="revisionStep ${tone(x[2],x[3],x[4])}"><small>0${i+1}</small><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
     };
+    const sync=render=>{queueMicrotask(render);setTimeout(render,0)};
 
     if(file==='post.html'){
       const anchor=$('.productionBoundary')||$('.lineage');
@@ -52,17 +53,17 @@
           else if(s.approval){a.className='revisionAction done';a.innerHTML=`<div><small>VERSION APPROVAL</small><b>${s.approvedVersion||'V4'} · Approved</b><span>独立 Approval Record 已形成。</span></div><a class="btn" href="delivery.html">进入交付 →</a>`}
         }
       };
-      render();window.addEventListener('reelops:state',()=>setTimeout(render,20));
+      render();window.addEventListener('reelops:state',()=>sync(render));
     }
 
     if(file==='review.html'){
       const hero=$('#versionsStage .reviewHero');if(hero&&!$('#versionsStage .revisionCycle')){const rail=document.createElement('section');rail.className='revisionCycle';hero.insertAdjacentElement('afterend',rail)}
-      const render=()=>{const rail=$('#versionsStage .revisionCycle');if(rail)rail.innerHTML=cycleHTML(state())};render();window.addEventListener('reelops:state',()=>setTimeout(render,20));
+      const render=()=>{const rail=$('#versionsStage .revisionCycle');if(rail)rail.innerHTML=cycleHTML(state())};render();window.addEventListener('reelops:state',()=>sync(render));
     }
 
     if(file==='delivery.html'){
       const replace=(root,from,to)=>{if(!root||from===to)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(w.nextNode())if(w.currentNode.nodeValue.includes(from))w.currentNode.nodeValue=w.currentNode.nodeValue.split(from).join(to)};
-      const render=()=>{const s=state();if(!s.approval)return;const v=s.approvedVersion||'V4',root=$('.deliveryShell')||document.body;replace(root,'V4 Approved',v+' Approved');replace(root,'Approved V4',v+' Approved');replace(root,'SHOT 08 · V4 · Approved','SHOT 08 · '+v+' · Approved');const vs=$('#versionState');if(vs)vs.textContent='SHOT 08 · '+v+' · Approved'};render();window.addEventListener('reelops:state',()=>setTimeout(render,30));
+      const render=()=>{const s=state();if(!s.approval)return;const v=s.approvedVersion||'V4',root=$('.deliveryShell')||document.body;replace(root,'V4 Approved',v+' Approved');replace(root,'Approved V4',v+' Approved');replace(root,'SHOT 08 · V4 · Approved','SHOT 08 · '+v+' · Approved');const vs=$('#versionState');if(vs)vs.textContent='SHOT 08 · '+v+' · Approved'};render();window.addEventListener('reelops:state',()=>sync(render));
     }
   });
 })();
