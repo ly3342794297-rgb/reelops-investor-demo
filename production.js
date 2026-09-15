@@ -30,26 +30,35 @@
       const side=$('.sidePanel');
       const gate=document.createElement('div');gate.className='productionGateStrip';side?.insertAdjacentElement('afterbegin',gate);
       const shootState=$$('.stateBlock',side).find(x=>$('b',x)?.textContent.includes('拍摄状态'))?.querySelector('span');
-      const packageEl=$('#package'),packageBtn=$('#packageBtn'),sendBtn=$('#sendBtn');
+      const packageEl=$('#package'),packageBtn=$('#packageBtn'),sendBtn=$('#sendBtn'),tracking=$('#tracking'),camera=$('#camera');
+      const inputCount=()=>$$('.checkGrid input[type="checkbox"]').filter(i=>i.checked).length;
       const render=()=>{
-        const s=state();
+        const s=state(),readyInputs=inputCount()===6;
+        if(s.packageSent){if(tracking){tracking.checked=true;tracking.disabled=true}if(camera){camera.checked=true;camera.disabled=true}}
         const route=$('.productionRoute');if(route)route.innerHTML=routeHTML([
           {k:'INPUT',title:s.creativeApproval?`Creative ${s.creativeVersion||'V2'} · Approved`:'Creative Approval Pending',sub:'已确认方向才允许正式制作交接',tone:cls(!!s.creativeApproval,!s.creativeApproval)},
           {k:'WORK',title:s.aiReady?'AI Ready':'Capture + AI Ready',sub:s.aiReady?'现场输入已齐套':'主体 / Clean Plate / Tracking / Lighting / Camera',tone:cls(!!s.aiReady,!!s.creativeApproval&&!s.aiReady)},
-          {k:'OUTPUT',title:s.packageSent?'AI Package · Sent':'AI Production Package',sub:s.packageSent?'已进入 AIGC 制作':'Shot Context + Preserve / Change + Capture Inputs',tone:cls(!!s.packageSent,!!s.aiReady&&!!s.creativeApproval&&!s.packageSent)}
+          {k:'OUTPUT',title:s.packageSent?'AI Package · Sent':s.creativeApproval&&s.aiReady?'AI Package · Ready':'AI Production Package',sub:s.packageSent?'已进入 AIGC 制作':s.creativeApproval&&s.aiReady?'等待正式发送':'Shot Context + Preserve / Change + Capture Inputs',tone:cls(!!s.packageSent,!!s.aiReady&&!!s.creativeApproval&&!s.packageSent)}
         ]);
         setBoundary('这一页的输出不是“拍完了”，而是可进入生成与合成的生产上下文。','CLIENT VISIBLE · NO · 内部制作状态');
         if(shootState)shootState.textContent=!s.creativeApproval?'技术准备 / 示例素材':s.captureComplete?'主体拍摄完成':'正式拍摄准备中';
         gate.className='productionGateStrip '+(s.creativeApproval?'good':'');
         gate.innerHTML=s.creativeApproval?'<span class="dot"></span><div><b>Creative Approval 已锁定</b><span>现在可以把 AI Ready 素材正式交接给 AIGC。</span></div><a href="director.html">查看已确认方向 →</a>':'<span class="dot"></span><div><b>当前仅允许技术准备</b><span>可以检查 AI Ready，但正式 AI 制作包必须等待客户确认 Creative Direction。</span></div><a href="review.html?stage=creative">去创意审阅 →</a>';
-        if(packageBtn){packageBtn.disabled=!(s.creativeApproval&&s.aiReady)||s.packageSent;packageBtn.textContent=s.packageSent?'AI 制作包已发送 ✓':!s.creativeApproval?'等待 Creative Approval':s.aiReady?'生成 AI 制作包 →':'补齐 AI Ready 后生成';}
+        if(packageBtn){
+          packageBtn.disabled=true;
+          packageBtn.textContent=s.packageSent?'AI 制作包已发送 ✓':!s.creativeApproval?'等待 Creative Approval':!s.aiReady?'补齐 AI Ready 后生成':'AI 制作包已就绪 ↓';
+        }
         if(packageEl)packageEl.style.display=(s.creativeApproval&&s.aiReady)||s.packageSent?'block':'none';
-        if(sendBtn){sendBtn.style.pointerEvents=(s.creativeApproval&&s.aiReady)?'auto':'none';sendBtn.style.opacity=(s.creativeApproval&&s.aiReady)?'1':'.45';}
+        if(sendBtn){
+          const canSend=!!(s.creativeApproval&&s.aiReady&&!s.packageSent);
+          sendBtn.style.pointerEvents=s.packageSent?'auto':canSend?'auto':'none';sendBtn.style.opacity=(canSend||s.packageSent)?'1':'.45';
+          sendBtn.textContent=s.packageSent?'进入 AIGC 制作 →':'发送至 AIGC 制作 →';
+        }
+        if(!s.packageSent&&s.aiReady!==readyInputs)window.ReelOpsState.set({aiReady:readyInputs,captureComplete:s.captureComplete||readyInputs});
       };
-      if(packageBtn)packageBtn.addEventListener('click',e=>{const s=state();if(!(s.creativeApproval&&s.aiReady)){e.preventDefault();e.stopImmediatePropagation();render();}},true);
-      if(sendBtn)sendBtn.addEventListener('click',e=>{const s=state();if(!(s.creativeApproval&&s.aiReady)){e.preventDefault();e.stopImmediatePropagation();return;}window.ReelOpsState.set({packageSent:true});},true);
-      ['tracking','camera'].forEach(id=>$('#'+id)?.addEventListener('change',()=>setTimeout(render,0)));
-      render();window.addEventListener('reelops:state',render);
+      if(sendBtn)sendBtn.addEventListener('click',e=>{const s=state();if(s.packageSent)return;if(!(s.creativeApproval&&s.aiReady)){e.preventDefault();e.stopImmediatePropagation();return;}window.ReelOpsState.set({packageSent:true,packageSentAt:new Date().toISOString()});},true);
+      [tracking,camera].filter(Boolean).forEach(i=>i.addEventListener('change',()=>setTimeout(render,0)));
+      render();window.addEventListener('reelops:state',()=>setTimeout(render,0));
     }
 
     if(file==='generation.html'){
