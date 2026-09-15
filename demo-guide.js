@@ -20,11 +20,31 @@
     function state(){try{return window.ReelOpsState?.get?.()||{}}catch(e){return {}}}
     function reviewStage(){return qs.get('stage')==='creative'?'creative':'versions'}
     function currentChapter(){if(file==='review.html')return reviewStage()==='creative'?chapters[1]:chapters[3];return chapters.find(c=>c.files.includes(file))||chapters[0]}
+    function resumeTarget(s){
+      if(!s.creativeSubmitted||s.creativeChangesRequested)return {href:'director.html?demo=1',label:s.creativeChangesRequested?'回到导演修订创意 →':'进入导演 / 创意 →',need:s.creativeChangesRequested?'客户已要求修改 Creative Direction，下一步由导演形成新版本。':'发布 Creative Direction。'};
+      if(!s.creativeApproval)return {href:'review.html?stage=creative&demo=1',label:'进入客户创意审阅 →',need:'完成 Creative Approval。'};
+      if(!s.aiReady||!s.packageSent)return {href:'live-action.html?demo=1',label:'进入实拍 + AI →',need:!s.aiReady?'补齐 AI Ready。':'发送 AI Production Package。'};
+      if(!s.genAsset)return {href:'generation.html?demo=1',label:'进入 AIGC 制作 →',need:'选择并写入 Selected Asset。'};
+      if(!s.workingComposite||!s.v3Submitted)return {href:'post.html?demo=1',label:'进入后期制作 →',need:!s.workingComposite?'建立 Working Composite。':'正式提交 V3。'};
+      if(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval)return {href:'review.html?stage=versions&demo=1',label:'进入 V3 客户审阅 →',need:'完成 V3 客户决策。'};
+      if(s.v4ChangesRequested)return {href:'post.html?demo=1',label:'查看第二轮 Revision →',need:'V4 已被要求修改；下一正式版本应为 V5。'};
+      if(s.v3ChangesRequested&&!s.v4Submitted)return {href:'post.html?demo=1',label:'继续 V3 → V4 Revision →',need:(s.feedbackResolved||0)<3?'闭合 V3 Feedback。':!s.v4Draft?'生成 V4 Draft。':'正式提交 V4。'};
+      if(s.v4Submitted&&!s.approval)return {href:'review.html?stage=versions&demo=1',label:'进入 V4 客户审阅 →',need:'完成 Version Approval。'};
+      if(!s.archiveRecord)return {href:'delivery.html?demo=1',label:'进入交付与归档 →',need:'完成 Final Master、Deliverables、Delivery Record 与 Archive。'};
+      return {href:'delivery.html?demo=1',label:'查看完整项目归档 →',need:'Project Aurora 已闭环。'};
+    }
     function nextFor(){
       const s=state();
-      if(file==='project.html'||file==='studio.html'||file==='producer.html')return {href:'director.html?demo=1',label:'进入导演 / 创意 →',ready:true,need:'先从 Project Truth 开始。'};
-      if(file==='director.html')return {href:'review.html?stage=creative&demo=1',label:'进入客户创意审阅 →',ready:!!s.creativeSubmitted,need:'先选择客户可见内容，并点击「提交客户创意审阅」。'};
-      if(file==='review.html'&&reviewStage()==='creative')return {href:'live-action.html?demo=1',label:'进入实拍 + AI →',ready:!!s.creativeApproval,need:'先点击「确认创意方向」，创建 Creative Approval Record。'};
+      if(file==='project.html'||file==='studio.html'||file==='producer.html'){const t=resumeTarget(s);return {href:t.href,label:t.label,ready:true,need:t.need};}
+      if(file==='director.html'){
+        if(s.creativeApproval)return {href:'live-action.html?demo=1',label:'进入实拍 + AI →',ready:true,need:''};
+        if(s.creativeChangesRequested)return {href:'review.html?stage=creative&demo=1',label:'进入修订后的客户审阅 →',ready:false,need:'先点击「提交下一版客户创意审阅」，不能继续使用已经被要求修改的旧版本。'};
+        return {href:'review.html?stage=creative&demo=1',label:'进入客户创意审阅 →',ready:!!s.creativeSubmitted,need:'先选择客户可见内容，并点击「提交客户创意审阅」。'};
+      }
+      if(file==='review.html'&&reviewStage()==='creative'){
+        if(s.creativeChangesRequested)return {href:'director.html?demo=1',label:'回到导演修订 →',ready:true,need:''};
+        return {href:'live-action.html?demo=1',label:'进入实拍 + AI →',ready:!!s.creativeApproval,need:'先点击「确认创意方向」，创建 Creative Approval Record。'};
+      }
       if(file==='live-action.html')return {href:'generation.html?demo=1',label:'进入 AIGC 制作 →',ready:!!s.packageSent,need:'先补齐 AI Ready，并把 SHOT 08 AI 制作包发送给 AIGC。'};
       if(file==='generation.html')return {href:'post.html?demo=1',label:'进入后期制作 →',ready:!!s.genAsset,need:'先选择 Variant，并明确加入 SHOT 08 Assets。'};
       if(file==='post.html'){
@@ -54,11 +74,12 @@
     function mark(el){if(el&&!el.disabled)el.classList.add('demoTarget')}
     function markNextTarget(){
       clearTarget();if(!enabled)return;const s=state();
-      if(file==='project.html'){mark(document.querySelector('a[href="director.html"]')||document.querySelector('.workspace[href="director.html"]'));return}
-      if(file==='studio.html'||file==='producer.html'){mark(document.querySelector('a[href="director.html"]'));return}
-      if(file==='director.html'&&!s.creativeSubmitted){mark(document.querySelector('#submitCreative'));return}
-      if(file==='review.html'&&reviewStage()==='creative'&&!s.creativeApproval){mark(document.querySelector('#creativeApprove'));return}
-      if(file==='live-action.html'&&!s.packageSent){if(!s.aiReady){mark(document.querySelector('#tracking:not(:checked)')?.closest('.checkCard')||document.querySelector('#camera:not(:checked)')?.closest('.checkCard'));return}mark(document.querySelector('#packageBtn:not(:disabled)')||document.querySelector('#sendBtn'));return}
+      if(file==='project.html'){mark(document.querySelector('#todayList a')||document.querySelector('.workspace[href="director.html"]'));return}
+      if(file==='studio.html'){mark(document.querySelector('#nextLink'));return}
+      if(file==='producer.html'){mark(document.querySelector('#attentionList a'));return}
+      if(file==='director.html'&&!s.creativeApproval){mark(document.querySelector('#submitCreative'));return}
+      if(file==='review.html'&&reviewStage()==='creative'&&!s.creativeApproval&&!s.creativeChangesRequested){mark(document.querySelector('#creativeApprove'));return}
+      if(file==='live-action.html'&&!s.packageSent){if(!s.aiReady){mark(document.querySelector('#tracking:not(:checked)')?.closest('.checkCard')||document.querySelector('#camera:not(:checked)')?.closest('.checkCard'));return}mark(document.querySelector('#sendBtn'));return}
       if(file==='generation.html'&&!s.genAsset){mark(document.querySelector('#addAsset'));return}
       if(file==='post.html'&&!s.approval){
         if(s.v4ChangesRequested)return;
