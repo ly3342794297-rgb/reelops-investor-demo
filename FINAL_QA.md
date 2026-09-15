@@ -35,6 +35,8 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - Working Composite ≠ Version.
 - Feedback belongs to a submitted Version.
 - Client feedback input is writable only while the current formal Version is actively awaiting a client decision; Approved / Changes Requested / no-Version states must not accept new formal feedback.
+- Submitting a new formal Version starts a new client-feedback round. V3 feedback counts must not carry into V4's “本轮新增反馈”.
+- Studio routing treats V4 Draft as internal. Only a formal submitted / decided V3 or V4 may route the Client Review entry to Version Review.
 - Version ≠ Approval.
 - Creative Approval ≠ Version Approval.
 - Ready ≠ Delivered.
@@ -129,6 +131,7 @@ Before deployment, check at minimum:
 - Demo Guide chapter follows Client Review creative / version stage switching without stale chapter copy
 - Client Review creative / version stage switching
 - Client Review feedback form cannot create new formal feedback after Approval / Changes Requested or before a formal Version exists
+- submitting V4 resets “本轮新增反馈” to 0 instead of inheriting the three V3 revision items
 - disabled / locked button states
 - no stale V3 / V4 visual shown before that Version exists
 
