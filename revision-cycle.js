@@ -27,8 +27,17 @@
         const s=state(),rail=$('.revisionCycle'),a=$('#revisionAction'),revisionInput=!!(s.v3ChangesRequested&&!s.v4ChangesRequested&&!s.approval&&s.approvedVersion!=='V3');
         if(rail)rail.innerHTML=cycleHTML(s);
         document.body.classList.toggle('waitingV3Decision',!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.approval));
-        document.body.classList.toggle('hasRevisionInput',revisionInput);document.body.classList.add('postRuntimeReady');
+        document.body.classList.toggle('hasRevisionInput',revisionInput);
+        document.body.classList.toggle('secondRevisionActive',!!(s.v4ChangesRequested&&!s.approval));
+        document.body.classList.add('postRuntimeReady');
         if(feedback)feedback.style.display=revisionInput?'block':'none';
+        const reviewObj=$('#reviewObj');
+        if(reviewObj&&s.v4ChangesRequested&&!s.approval){
+          reviewObj.className='versionObj current';
+          const b=$('b',reviewObj),sp=$('span',reviewObj);
+          if(b)b.textContent='V4 · Changes Requested';
+          if(sp)sp.textContent='客户决策已记录 · 下一正式版本应为 V5';
+        }
         if(a){
           a.className='revisionAction';
           if(!s.workingComposite)a.innerHTML='<div><small>REVISION CYCLE</small><b>先建立 Working Composite</b><span>内部工作状态不是正式 Version。</span></div>';
