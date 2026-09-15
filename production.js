@@ -73,26 +73,30 @@
     if(file==='post.html'){
       document.body.classList.add('productionPost');
       const anchor=$('.subnav')||$('.postHero');mount(anchor);
-      const feedbackSection=$$('.appMain section').find(sec=>$('.eyebrow',sec)?.textContent.includes('FEEDBACK'));
-      const locked=document.createElement('div');locked.className='productionLockedMessage';locked.innerHTML='<b>Post Revision 尚未开始。</b><p>先从 AIGC / Capture 获得正式 Selected Asset。只有进入 SHOT 08 Assets 的素材，才能建立 Working Composite 并处理版本修改。</p>';
+      const feedbackSection=$('#feedbackSection')||$$('.appMain section').find(sec=>$('.eyebrow',sec)?.textContent.includes('FEEDBACK'));
+      const locked=document.createElement('div');locked.className='productionLockedMessage';locked.innerHTML='<b>Post 尚未获得正式生产素材。</b><p>先从 AIGC / Capture 获得 Selected Asset。只有进入 SHOT 08 Assets 的素材，才能建立 Working Composite 并提交正式 Version。</p>';
       if(feedbackSection)feedbackSection.insertAdjacentElement('beforebegin',locked);
       const formalBlock=$$('.stateBlock',$('.sidePanel')).find(x=>$('b',x)?.textContent.includes('当前正式 Version'))?.querySelector('span');
-      const liveLineage=$('.lineage .lineageCard:first-child'),aigcLineage=$('#aigcLineage');
+      const liveLineage=$('#liveLineage')||$('.lineage .lineageCard:first-child'),aigcLineage=$('#aigcLineage');
       const render=()=>{
-        const s=state(),hasAsset=!!s.genAsset,res=s.feedbackResolved||0;
+        const s=state(),hasAsset=!!s.genAsset,res=s.feedbackResolved||0,approved=s.approval?(s.approvedVersion||'V4'):null;
         document.body.classList.toggle('preAsset',!hasAsset);
+        const formal=approved?`${approved} · Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft · Internal':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':s.workingComposite?'尚未提交正式 Version':'尚未进入 Version';
+        const outputTitle=approved?`${approved} · Approved`:s.v4ChangesRequested?'V4 · Changes Requested':s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft':s.v3ChangesRequested?'V3 · Changes Requested':s.v3Submitted?'V3 · In Review':s.workingComposite?'Formal Version · V3':'Formal Version';
+        const outputSub=approved?'Version Approval 已形成':s.v4ChangesRequested?'下一正式 Version 应创建 V5':s.v4Submitted?'正式 Version 已进入客户决策':s.v4Draft?'下一版草稿 · 尚未客户可见':s.v3ChangesRequested?'正式 Feedback 已进入 Revision':s.v3Submitted?'等待客户首次版本决策':'Composite 不是 Version';
         const route=$('.productionRoute');if(route)route.innerHTML=routeHTML([
           {k:'INPUT',title:hasAsset?'Production Assets · Ready':'Waiting for Selected Asset',sub:'Live Action + AIGC + CG/Post',tone:cls(hasAsset,!hasAsset)},
-          {k:'WORK',title:s.workingComposite?'Working Composite · Created':'Working Composite',sub:s.workingComposite?`${res} / 3 feedback resolved`:'内部工作状态 · 客户不可见',tone:cls(!!s.workingComposite,hasAsset&&!s.workingComposite)},
-          {k:'OUTPUT',title:s.approval?'V4 · Approved':s.v4Submitted?'V4 · In Review':s.v4Draft?'V4 Draft':'Formal Version · V4',sub:s.v4Submitted||s.approval?'正式 Version 已进入客户决策':'Composite 不是 Version',tone:cls(!!s.v4Submitted||!!s.approval,!!s.v4Draft&&!s.v4Submitted)}
+          {k:'WORK',title:s.workingComposite?'Working Composite · Created':'Working Composite',sub:s.workingComposite?(s.v3ChangesRequested?`${res} / 3 V3 Feedback resolved`:'内部工作状态 · 客户不可见'):'内部工作状态 · 客户不可见',tone:cls(!!s.workingComposite,hasAsset&&!s.workingComposite)},
+          {k:'OUTPUT',title:outputTitle,sub:outputSub,tone:cls(!!s.approval,!!(s.v3Submitted||s.v4Draft||s.v4Submitted||s.v4ChangesRequested)&&!s.approval)}
         ]);
         setBoundary('这一页负责把不同来源的 Asset 变成可审阅的正式 Version。','CLIENT VISIBLE · 仅正式提交的 Version');
-        if(feedbackSection)feedbackSection.style.display=hasAsset?'':'none';locked.style.display=hasAsset?'none':'block';
-        if(formalBlock)formalBlock.textContent=hasAsset?'V3 · Changes Requested':'尚未进入 Version Revision';
-        if(liveLineage){liveLineage.className='lineageCard '+(s.captureComplete?'ready':'locked');const desc=liveLineage.querySelector('span');if(desc)desc.textContent=s.captureComplete?'人物主体 / 产品 / 摄影机运动':'等待正式 Capture Asset';}
+        const revisionInput=!!(s.v3ChangesRequested&&!s.approval&&approved!=='V3');
+        if(feedbackSection)feedbackSection.style.display=revisionInput?'block':'none';locked.style.display=hasAsset?'none':'block';
+        if(formalBlock)formalBlock.textContent=formal;
+        if(liveLineage){liveLineage.className='lineageCard '+(s.captureComplete?'ready':'locked');const desc=liveLineage.querySelector('span');if(desc)desc.textContent=s.captureComplete?'Capture Asset · Ready':'等待正式 Capture Asset';}
         if(aigcLineage)aigcLineage.className='lineageCard '+(s.genAsset?'ready':s.packageSent?'current':'locked');
       };
-      render();window.addEventListener('reelops:state',render);
+      render();window.addEventListener('reelops:state',()=>setTimeout(render,0));
     }
   });
 })();
