@@ -71,6 +71,7 @@
     }
 
     function render(){const s=state();project(s);producer(s);studio(s);director(s);review(s)}
-    render();setTimeout(()=>{render();document.body.classList.add('stateHydrated')},0);setTimeout(render,180);window.addEventListener('reelops:state',()=>setTimeout(render,160));setTimeout(()=>{if(sessionStorage.getItem('reelops_investor_demo_mode')==='1')document.querySelector('.demoGuide')?.classList.add('open')},420);
+    const hydrate=()=>{render();document.body.classList.add('stateHydrated')};
+    render();if(document.readyState==='complete')setTimeout(hydrate,0);else window.addEventListener('load',hydrate,{once:true});setTimeout(render,180);window.addEventListener('reelops:state',()=>setTimeout(render,160));setTimeout(()=>{if(sessionStorage.getItem('reelops_investor_demo_mode')==='1')document.querySelector('.demoGuide')?.classList.add('open')},420);
   });
 })();
