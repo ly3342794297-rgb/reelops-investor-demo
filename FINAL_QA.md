@@ -37,6 +37,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - The canonical V3 feedback set is identical across Director, Post, and Client Review: 主体提前一点进入 / 背景层次再弱一点 / 最后停留多 1 秒.
 - Client feedback input is writable only while the current formal Version is actively awaiting a client decision; Approved / Changes Requested / no-Version states must not accept new formal feedback.
 - Submitting a new formal Version starts a new client-feedback round. V3 feedback counts must not carry into V4's “本轮新增反馈”.
+- Client progress treats only submitted / decided formal Versions as Version state; V4 Draft remains internal and Delivery completion is sourced from Delivery Record.
 - Studio routing treats V4 Draft as internal. Only a formal submitted / decided V3 or V4 may route the Client Review entry to Version Review.
 - Version ≠ Approval.
 - Creative Approval ≠ Version Approval.
@@ -88,7 +89,8 @@ Expected result:
 - V4 remains an immutable formal Version.
 - UI states that the next production-grade formal Version should be V5.
 - Post must remain visibly in `V4 · Changes Requested`; it must not fall back to `V4 Draft · Internal` or reopen the old V3 feedback list as the active work state.
-- Old V3 feedback must stay hidden even during first paint / runtime hydration of the Post page.
+- Old V3 feedback must stay hidden even during first paint / runtime hydration of the Post page. Every Post runtime layer that can change feedback visibility must exclude `v4ChangesRequested`.
+- Post production-route copy must identify the second revision as V4 Changes Requested / next V5, not report old V3 feedback resolution as the current work state.
 - V4 submit is disabled and the demo clearly states that V5 is outside the current modeled scope.
 - Current concept Demo does not pretend to model V5.
 
@@ -134,6 +136,7 @@ Before deployment, check at minimum:
 - Client Review creative / version stage switching
 - Client Review decision controls are not interactable or visually misleading before shared-state hydration completes
 - Client Review feedback form cannot create new formal feedback after Approval / Changes Requested or before a formal Version exists
+- Client Review V4 revision summary and notice use the canonical third feedback: 最后停留多 1 秒 / 最后停留已延长 1 秒, including after all runtime render layers finish
 - submitting V4 resets “本轮新增反馈” to 0 instead of inheriting the three V3 revision items
 - disabled / locked button states
 - no stale V3 / V4 visual shown before that Version exists
