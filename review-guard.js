@@ -3,6 +3,12 @@
   ready(()=>{
     if((location.pathname.split('/').pop()||'').toLowerCase()!=='review.html')return;
     const $=s=>document.querySelector(s),state=()=>window.ReelOpsState?.get?.()||{};
+    const canVersionDecide=s=>!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted&&!s.v4ChangesRequested&&!s.approval||s.v4Submitted&&!s.v4ChangesRequested&&!s.approval);
+    const feedbackForm=$('#feedbackForm');
+    if(feedbackForm&&!feedbackForm.dataset.versionDecisionGuard){
+      feedbackForm.dataset.versionDecisionGuard='1';
+      feedbackForm.addEventListener('submit',e=>{if(!canVersionDecide(state())){e.preventDefault();e.stopImmediatePropagation();}},true);
+    }
     function apply(){
       const s=state();
       const creativePublished=!!(s.creativeSubmitted||s.creativeChangesRequested||s.creativeApproval);
@@ -20,6 +26,10 @@
       const v4Decision=!!(s.v4Submitted&&!s.v4ChangesRequested&&!s.approval);
       const canDecide=v3Decision||v4Decision;
       const approve=$('#approve'),changes=$('#changes');if(approve)approve.disabled=!canDecide;if(changes)changes.disabled=!canDecide;
+      if(feedbackForm)feedbackForm.style.display=canDecide?'block':'none';
+
+      const formal=s.approval?(s.approvedVersion||'V4'):(s.v4Submitted||s.v4ChangesRequested?'V4':s.v3Submitted||s.v3ChangesRequested?'V3':null);
+      const screen=$('#versionsStage .reviewScreen');if(screen)screen.style.backgroundImage=formal?`url('assets/${formal==='V3'?'shot08-v3.svg':'shot08-v4.svg'}')`:'none';
 
       const hasV4=!!(s.v4Submitted||s.v4ChangesRequested||s.approval&&s.approvedVersion==='V4');
       const tabs=$('#versionTabs'),revision=$('#revisionSummary');if(tabs)tabs.style.display=hasV4?'flex':'none';if(revision)revision.style.display=hasV4?'block':'none';
