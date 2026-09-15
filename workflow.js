@@ -46,7 +46,7 @@
     function renderInspector(){
       const drawer=$('.shotInspector');if(!drawer)return;const s=state(),reviewCurrent=!!(!s.approval&&((s.v3Submitted&&!s.v3ChangesRequested)||s.v4Submitted));
       const lineage=[
-        ['Creative',s.creativeApproval?'Approved':s.creativeSubmitted?'In Review':'Internal',!!s.creativeApproval,!!s.creativeSubmitted&&!s.creativeApproval],
+        ['Creative',s.creativeApproval?'Approved':s.creativeChangesRequested?'Changes Requested':s.creativeSubmitted?'In Review':'Internal',!!s.creativeApproval,!!s.creativeSubmitted&&!s.creativeApproval],
         ['AI Ready',s.aiReady?'Ready':'Pending',!!s.aiReady,!!s.creativeApproval&&!s.aiReady],
         ['Asset',s.genAsset?'Selected':'Pending',!!s.genAsset,!!s.packageSent&&!s.genAsset],
         ['Composite',s.workingComposite?'Created':'Pending',!!s.workingComposite,!!s.genAsset&&!s.workingComposite],
