@@ -39,6 +39,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 - Ready ≠ Delivered.
 - Approved ≠ Archived.
 - Client Review only exposes explicitly published creative objects and formal submitted Versions.
+- While V4 exists only as an internal Draft, Client Review must continue showing the V3 formal state and must not display V4 media, V4 compare UI, or treat V4 as client-visible until V4 is formally submitted.
 - Producer and Post cannot impersonate client approval.
 - Producer must never display fabricated SHOT rows or fabricated Deliverable readiness as if they were real project state.
 - Project Overview must keep Asset → Working Composite → Version as separate objects in the record chain.
