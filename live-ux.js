@@ -25,9 +25,15 @@
     nav.insertAdjacentElement('afterend',gate);
 
     const originalText='生成 AI 制作包 →';
+    const showBlocked=t=>{const el=$('#toast');if(!el)return;el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1600)};
     const blockClick=e=>{
       const s=ReelOpsState.get();
-      if(!s.creativeApproval){e.preventDefault();e.stopImmediatePropagation();const t=$('#toast');if(t){t.textContent='正式 AI 制作包需要先完成 Creative Approval';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)}}
+      if(s.packageSent)return;
+      if(!s.creativeApproval||!s.aiReady){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        showBlocked(!s.creativeApproval?'正式 AI 制作包需要先完成 Creative Approval':'正式 AI 制作包需要先补齐 AI Ready');
+      }
     };
     packageBtn.addEventListener('click',blockClick,true);
     if(sendBtn)sendBtn.addEventListener('click',blockClick,true);
@@ -48,7 +54,12 @@
         packageBtn.disabled=readyCount<6||!!s.packageSent;
         packageBtn.textContent=s.packageSent?'AI 制作包已发送 ✓':originalText;
       }
-      if(sendBtn){sendBtn.classList.toggle('productionLocked',!approved);sendBtn.setAttribute('aria-disabled',approved?'false':'true')}
+      if(sendBtn){
+        const usable=!!(s.packageSent||(s.creativeApproval&&s.aiReady));
+        sendBtn.classList.toggle('productionLocked',!usable);
+        sendBtn.setAttribute('aria-disabled',usable?'false':'true');
+        if(usable)sendBtn.removeAttribute('tabindex');else sendBtn.setAttribute('tabindex','-1');
+      }
       document.body.dataset.captureMode=prep?'prep':'production';
     };
     render();
