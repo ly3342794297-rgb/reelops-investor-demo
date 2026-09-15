@@ -5,6 +5,7 @@
     const file=(location.pathname.split('/').pop()||'').toLowerCase();
     const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
     const state=()=>ReelOpsState.get();
+    const readyCount=s=>(s.deliveryItems||[]).filter(Boolean).length;
 
     function syncMiniDeliverables(s){
       if(file!=='producer.html')return;
@@ -17,7 +18,7 @@
       const summary=$('#summaryDelivery');if(summary)summary.textContent=ReelOpsState.deliveryLabel(s);
       if(!s.approval)return;
       const v=s.approvedVersion||'V4',health=$('#healthGrid');
-      if(health){const cards=[...health.querySelectorAll('.health')],d=cards[cards.length-1];if(d){d.classList.remove('good','attn','wait');d.classList.add(s.archiveRecord||s.deliveryRecord?'good':'attn');const strong=d.querySelector('strong'),span=d.querySelector('span');if(strong)strong.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${s.deliverables||0}/4 Ready`:'Final Master Pending';if(span)span.textContent=s.archiveRecord?'项目记录已闭合':s.deliveryRecord?'Delivery Record 已完成':s.finalMasterReady?'完成交付矩阵后创建记录':`从 ${v} Approved 创建最终母版`;}}
+      if(health){const cards=[...health.querySelectorAll('.health')],d=cards[cards.length-1];if(d){d.classList.remove('good','attn','wait');d.classList.add(s.archiveRecord||s.deliveryRecord?'good':'attn');const strong=d.querySelector('strong'),span=d.querySelector('span');if(strong)strong.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${readyCount(s)}/4 Ready`:'Final Master Pending';if(span)span.textContent=s.archiveRecord?'项目记录已闭合':s.deliveryRecord?'Delivery Record 已完成':s.finalMasterReady?'完成交付矩阵后创建记录':`从 ${v} Approved 创建最终母版`;}}
     }
 
     function renderProducer(s){
@@ -25,7 +26,7 @@
       syncMiniDeliverables(s);
       if(!s.approval)return;
       const v=s.approvedVersion||'V4',value=$('#deliveryPulseValue'),sub=$('#deliveryPulseSub');
-      if(value)value.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${s.deliverables||0} / 4`:'Final Master';
+      if(value)value.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${readyCount(s)} / 4`:'Final Master';
       if(sub)sub.textContent=s.archiveRecord?'Project closure complete':s.deliveryRecord?'Delivery Record complete':s.finalMasterReady?'Deliverables Ready':`Pending from ${v} Approved`;
     }
 
