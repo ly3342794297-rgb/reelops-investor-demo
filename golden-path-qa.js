@@ -55,8 +55,26 @@
       if(prev)prev.textContent='—';if(nb)nb.textContent='VERSION REVIEW';if(np)np.textContent='等待后期正式提交 Version。内部 Working Composite 不会显示给客户。';
     }
 
+    function guardCreativeRevision(){
+      const approve=$('#creativeApprove'),changes=$('#creativeChanges'),form=$('#creativeFeedbackForm');
+      [approve,changes].filter(Boolean).forEach(btn=>{
+        if(btn.dataset.revisionGuard)return;btn.dataset.revisionGuard='1';
+        btn.addEventListener('click',e=>{if(state().creativeChangesRequested){e.preventDefault();e.stopImmediatePropagation();}},true);
+      });
+      if(form&&!form.dataset.revisionGuard){form.dataset.revisionGuard='1';form.addEventListener('submit',e=>{if(state().creativeChangesRequested){e.preventDefault();e.stopImmediatePropagation();}},true);}
+    }
+
     function syncReview(s){
       if(file!=='review.html')return;
+      guardCreativeRevision();
+      const creativeApprove=$('#creativeApprove'),creativeChanges=$('#creativeChanges'),creativeForm=$('#creativeFeedbackForm'),creativeStageState=$('#creativeStageState'),creativeBadge=$('#creativeBadge');
+      if(s.creativeChangesRequested){
+        if(creativeApprove){creativeApprove.disabled=true;creativeApprove.textContent='等待修订版本 →';}
+        if(creativeChanges){creativeChanges.disabled=true;creativeChanges.textContent='修改请求已记录 ✓';}
+        if(creativeForm)creativeForm.style.display='none';
+        if(creativeStageState)creativeStageState.textContent='· Revision 中';
+        if(creativeBadge)creativeBadge.textContent='等待修订版本';
+      }
       setVersionSummary(s);
       const v=approvedVersion(s)||(s.v4Submitted||s.v4ChangesRequested?'V4':s.v3Submitted||s.v3ChangesRequested?'V3':null);
       const screen=$('#versionsStage .reviewScreen');
