@@ -7,7 +7,7 @@
 
     if(!document.querySelector('style[data-director-gate]')){
       const style=document.createElement('style');
-      style.dataset.liveGate='1';
+      style.dataset.directorGate='1';
       style.textContent=`
         .directorDecisionGate{margin-top:15px;border:1px solid var(--line);background:#fbfbfa;border-radius:14px;padding:13px}
         .ddgTop{display:flex;align-items:center;gap:8px}.ddgTop b{font-size:11px}.ddgDot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}.ddgDot.ok{background:#17824f;box-shadow:0 0 0 4px rgba(23,130,79,.09)}.ddgDot.wait{background:#b26b10;box-shadow:0 0 0 4px rgba(178,107,16,.09)}
