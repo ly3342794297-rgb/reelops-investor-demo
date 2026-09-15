@@ -3,7 +3,7 @@
   ready(()=>{
     if(!window.ReelOpsState)return;
     const file=(location.pathname.split('/').pop()||'').toLowerCase();
-    const $=(s,r=document)=>r.querySelector(s);
+    const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
     const state=()=>ReelOpsState.get();
     function closureAction(s){
       if(!s.approval)return null;
@@ -14,6 +14,11 @@
       if(!s.archiveRecord)return ['归档 Project Aurora','Delivery Record 已完成，等待项目归档。'];
       return ['项目已闭环','Archive Record 已创建。'];
     }
+    function syncMiniDeliverables(s){
+      if(file!=='producer.html')return;
+      const items=Array.isArray(s.deliveryItems)?s.deliveryItems:[false,false,false,false];
+      $$('.deliverableMini .deliveryMiniRow').forEach((row,i)=>{const b=$('b',row);if(!b)return;const done=!!items[i];b.textContent=done?'Ready':s.finalMasterReady?'Pending':'Locked';b.classList.toggle('miniReady',done);row.classList.toggle('isLocked',!s.finalMasterReady&&!done)});
+    }
     function renderProject(){
       if(file!=='project.html')return;const s=state(),action=closureAction(s);if(!action)return;const v=s.approvedVersion||'V4';
       const summary=$('#summaryDelivery');if(summary)summary.textContent=ReelOpsState.deliveryLabel(s);
@@ -21,11 +26,10 @@
       const health=$('#healthGrid');if(health){const cards=[...health.querySelectorAll('.health')];const d=cards[cards.length-1];if(d){d.classList.remove('good','attn','wait');d.classList.add(s.deliveryRecord?'good':'attn');const strong=d.querySelector('strong'),span=d.querySelector('span');if(strong)strong.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${s.deliverables||0}/4 Ready`:'Final Master Pending';if(span)span.textContent=s.archiveRecord?'项目记录已闭合':s.deliveryRecord?'Delivery Record 已完成':s.finalMasterReady?'完成交付矩阵后创建记录':`从 ${v} Approved 创建最终母版`;}}
     }
     function renderProducer(){
-      if(file!=='producer.html')return;const s=state(),action=closureAction(s);if(!action)return;const v=s.approvedVersion||'V4';
+      if(file!=='producer.html')return;const s=state();syncMiniDeliverables(s);const action=closureAction(s);if(!action)return;const v=s.approvedVersion||'V4';
       const value=$('#deliveryPulseValue'),sub=$('#deliveryPulseSub');if(value)value.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${s.deliverables||0} / 4`:'Final Master';if(sub)sub.textContent=s.archiveRecord?'Project closure complete':s.deliveryRecord?'Delivery Record complete':s.finalMasterReady?'Deliverables Ready':`Pending from ${v} Approved`;
       const riskTitle=$('#riskTitle'),riskText=$('#riskText');if(riskTitle)riskTitle.textContent=action[0];if(riskText)riskText.textContent=action[1];
       const list=$('#attentionList');if(list){const old=$('.deliveryClosureAttention',list);if(old)old.remove();if(!s.archiveRecord){const row=document.createElement('div');row.className='attentionItem high deliveryClosureAttention';row.innerHTML=`<div class="num">D</div><div><b>${action[0]}</b><p>${action[1]}</p></div><a class="go" href="delivery.html">打开 →</a>`;list.prepend(row)}}
-      const last=$('#miniLast');if(last)last.textContent=(s.deliveryItems||[])[3]?'Ready':'Pending';
     }
     const render=()=>{renderProject();renderProducer()};render();window.addEventListener('reelops:state',()=>setTimeout(render,0));
   });
