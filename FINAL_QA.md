@@ -28,6 +28,7 @@ Project Aurora / SHOT 08 is the only complete investor-demo production object. O
 
 - No Creative Approval → no formal AI handoff.
 - Creative Changes Requested → the same Creative Version cannot be approved again; Director must submit a newer Creative Direction first.
+- Director source logic must enforce that resubmission boundary on its own; the page must not depend on a later enhancement script to prevent overwriting a Changes Requested / Approved Creative Version.
 - AI Ready may be prepared technically before approval, but Project Phase must not advance to formal Production until Creative Approval exists.
 - Capture Complete ≠ AI Ready.
 - Variant ≠ Asset.
@@ -128,6 +129,7 @@ Before deployment, check at minimum:
 - narrow/mobile viewport, including no horizontal overflow in the sticky app header
 - Studio mobile viewport: role map collapses to a readable vertical workspace list instead of overlapping absolute-positioned role cards
 - Studio Client Review entry is not interactable until shared state hydration has chosen Creative Review vs Version Review correctly
+- Delivery stateful rail / matrix / closure grid and header state do not flash stale placeholder values before shared-state hydration completes
 - Delivery narrow/mobile viewport keeps Deliverable name + current status + action readable on one row; secondary format / ratio metadata may collapse rather than forcing a broken grid
 - short mobile viewport: Investor Demo Guide stays inside the viewport and its body scrolls instead of covering unreachable controls
 - Project startup transition
