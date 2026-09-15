@@ -37,6 +37,7 @@
       if(s.v4Submitted&&!s.v4ChangesRequested&&!s.approval){const notice=$('#versionNotice'),b=notice?.querySelector('b'),p=notice?.querySelector('p');if(b)b.textContent='V4 修改摘要';if(p)p.textContent='人物进入提前；背景层次减弱；最后停留延长 1 秒。';}
       if(!hasV4){document.querySelectorAll('#versionsStage .reviewPanel').forEach(p=>p.classList.toggle('active',p.dataset.panel==='changes'));document.querySelectorAll('#versionsStage .reviewTabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab==='changes'));}
     }
-    apply();window.addEventListener('reelops:state',()=>{queueMicrotask(apply);setTimeout(apply,30)});
+    const sync=()=>{queueMicrotask(apply);setTimeout(apply,0)};
+    apply();window.addEventListener('reelops:state',sync);
   });
 })();
