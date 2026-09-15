@@ -60,7 +60,7 @@
       const clientLink=$('[data-si="clientLink"]',drawer);if(clientLink)clientLink.href=hasFormalVersion?'review.html?stage=versions':'review.html?stage=creative';
       const events=[
         ['Brief / Shot Intent','已建立',true,''],
-        [`Creative Direction ${s.creativeVersion||'V2'}`,s.creativeApproval?'Approved':s.creativeChangesRequested?'Changes Requested':s.creativeSubmitted?'In Review':'Internal Draft',!!(s.creativeSubmitted||s.creativeApproval),fmt(s.creativeApprovalAt||s.creativeChangesAt||s.creativeSubmittedAt)],
+        [`Creative Direction ${s.creativeVersion||'V2'}`,s.creativeApproval?'Approved':s.creativeChangesRequested?'Changes Requested':s.creativeSubmitted?'In Review':'Internal Draft',!!(s.creativeSubmitted||s.creativeApproval),fmt(s.creativeApproval?s.creativeApprovalAt:s.creativeChangesRequested?s.creativeChangesAt:s.creativeSubmitted?s.creativeSubmittedAt:null)],
         ['AI Ready',s.aiReady?'Ready':'Pending',!!s.aiReady,fmt(s.aiReadyAt)],
         ['AI Production Package',s.packageSent?'Sent':'Pending',!!s.packageSent,fmt(s.packageSentAt)],
         ['Selected Asset',s.genAsset?`Variant ${s.selectedVariant||'B'} · Linked`:'Pending',!!s.genAsset,fmt(s.genAssetAt)],
