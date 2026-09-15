@@ -118,9 +118,11 @@ Before deployment, check at minimum:
 - desktop wide viewport
 - laptop viewport
 - narrow/mobile viewport, including no horizontal overflow in the sticky app header
+- short mobile viewport: Investor Demo Guide stays inside the viewport and its body scrolls instead of covering unreachable controls
 - Project startup transition
-- SHOT 08 Inspector open / close
-- Demo Guide reset and resume behavior
+- SHOT 08 Inspector open / close, overlay close, Escape close, and body-scroll lock
+- Demo Guide reset returns to the canonical Project Aurora baseline and resume continues from the actual shared state
+- Demo Guide chapter follows Client Review creative / version stage switching without stale chapter copy
 - Client Review creative / version stage switching
 - disabled / locked button states
 - no stale V3 / V4 visual shown before that Version exists
