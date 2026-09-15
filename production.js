@@ -95,11 +95,11 @@
         const outputSub=approved?'Version Approval 已形成':s.v4ChangesRequested?'下一正式 Version 应创建 V5':s.v4Submitted?'正式 Version 已进入客户决策':s.v4Draft?'下一版草稿 · 尚未客户可见':s.v3ChangesRequested?'正式 Feedback 已进入 Revision':s.v3Submitted?'等待客户首次版本决策':'Composite 不是 Version';
         const route=$('.productionRoute');if(route)route.innerHTML=routeHTML([
           {k:'INPUT',title:hasAsset?'Production Assets · Ready':'Waiting for Selected Asset',sub:'Live Action + AIGC + CG/Post',tone:cls(hasAsset,!hasAsset)},
-          {k:'WORK',title:s.workingComposite?'Working Composite · Created':'Working Composite',sub:s.workingComposite?(s.v3ChangesRequested?`${res} / 3 V3 Feedback resolved`:'内部工作状态 · 客户不可见'):'内部工作状态 · 客户不可见',tone:cls(!!s.workingComposite,hasAsset&&!s.workingComposite)},
+          {k:'WORK',title:s.workingComposite?'Working Composite · Created':'Working Composite',sub:s.workingComposite?(s.v4ChangesRequested?'V4 Changes Requested · 下一正式版本 V5':s.v3ChangesRequested?`${res} / 3 V3 Feedback resolved`:'内部工作状态 · 客户不可见'):'内部工作状态 · 客户不可见',tone:cls(!!s.workingComposite,hasAsset&&!s.workingComposite)},
           {k:'OUTPUT',title:outputTitle,sub:outputSub,tone:cls(!!s.approval,!!(s.v3Submitted||s.v4Draft||s.v4Submitted||s.v4ChangesRequested)&&!s.approval)}
         ]);
         setBoundary('这一页负责把不同来源的 Asset 变成可审阅的正式 Version。','CLIENT VISIBLE · 仅正式提交的 Version');
-        const revisionInput=!!(s.v3ChangesRequested&&!s.approval&&approved!=='V3');
+        const revisionInput=!!(s.v3ChangesRequested&&!s.v4ChangesRequested&&!s.approval&&approved!=='V3');
         if(feedbackSection)feedbackSection.style.display=revisionInput?'block':'none';locked.style.display=hasAsset?'none':'block';
         if(formalBlock)formalBlock.textContent=formal;
         if(liveLineage){liveLineage.className='lineageCard '+(s.captureComplete?'ready':'locked');const desc=liveLineage.querySelector('span');if(desc)desc.textContent=s.captureComplete?'Capture Asset · Ready':'等待正式 Capture Asset';}
