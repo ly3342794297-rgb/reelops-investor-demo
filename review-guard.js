@@ -22,6 +22,7 @@
       const versionPublished=!!(s.v3Submitted||s.v3ChangesRequested||s.v4Submitted||s.v4ChangesRequested||s.approval);
       const versionContent=$('#versionContent');if(versionContent)versionContent.style.display=versionPublished?'block':'none';
       const versionLocked=$('#versionLocked');if(versionLocked)versionLocked.style.display=versionPublished?'none':'block';
+      const feedbackCount=$('#feedbackCount');if(feedbackCount&&!versionPublished)feedbackCount.textContent='0 条';
 
       const v3Decision=!!(s.v3Submitted&&!s.v3ChangesRequested&&!s.v4Submitted&&!s.v4ChangesRequested&&!s.approval);
       const v4Decision=!!(s.v4Submitted&&!s.v4ChangesRequested&&!s.approval);
