@@ -27,7 +27,7 @@
       if(!s.approval)return;
       const v=s.approvedVersion||'V4',value=$('#deliveryPulseValue'),sub=$('#deliveryPulseSub');
       if(value)value.textContent=s.archiveRecord?'Archived':s.deliveryRecord?'Delivered':s.finalMasterReady?`${readyCount(s)} / 4`:'Final Master';
-      if(sub)sub.textContent=s.archiveRecord?'Project closure complete':s.deliveryRecord?'Delivery Record complete':s.finalMasterReady?'Deliverables Ready':`Pending from ${v} Approved`;
+      if(sub)sub.textContent=s.archiveRecord?'Project closure complete':s.deliveryRecord?'Delivery Record complete':s.finalMasterReady?`${readyCount(s)} / 4 Deliverables Ready`:`Pending from ${v} Approved`;
     }
 
     const render=()=>{const s=state();renderProject(s);renderProducer(s)};
