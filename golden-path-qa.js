@@ -45,7 +45,7 @@
         if(prev)prev.textContent='无 · V3 直接通过';if(nb)nb.textContent='VERSION APPROVAL';if(np)np.textContent='V3 在首次正式审阅中直接通过，没有创建 V4 Revision。';return;
       }
       if(s.approval&&s.approvedVersion==='V4'){
-        if(prev)prev.textContent='3 / 3 已处理';if(nb)nb.textContent='V4 修改摘要';if(np)np.textContent='人物进入提前；背景层次减弱；最后停留延长 1 秒。';return;
+        if(prev)prev.textContent='V3 · 3 / 3 已处理';if(nb)nb.textContent='VERSION APPROVAL RECORD';if(np)np.textContent='V4 已由客户确认。V3 的 3 条 Revision Input 已在 V4 中闭合；该 Approval 独立于 V4 Version 对象。';return;
       }
       if(s.v4ChangesRequested){
         if(prev)prev.textContent='V3 · 3 / 3 已处理';if(nb)nb.textContent='V4 · Changes Requested';if(np)np.textContent='客户已对 V4 提出新修改。下一正式版本应创建 V5，而不是覆盖 V4。';return;
