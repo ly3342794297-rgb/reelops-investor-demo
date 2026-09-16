@@ -36,7 +36,7 @@
       const reviewCurrent=!s.approval&&((s.v3Submitted&&!s.v3ChangesRequested)||s.v4Submitted);
       cls($('#recordAsset'),!!s.genAsset,!!s.packageSent&&!s.genAsset);
       cls($('#recordComposite'),!!s.workingComposite,!!s.genAsset&&!s.workingComposite);
-      cls($('#recordVersion'),!!(s.v3Submitted||s.v4Draft||s.v4Submitted||s.approval),!!s.workingComposite&&!s.v3Submitted);
+      cls($('#recordVersion'),!!(s.v3Submitted||s.v4Submitted||s.v4ChangesRequested||s.approval),!!s.workingComposite&&!s.v3Submitted);
       cls($('#recordApproval'),!!s.approval,reviewCurrent);
       cls($('#recordDelivery'),!!(s.deliveryRecord||s.archiveRecord),!!s.approval&&!s.deliveryRecord);
     };
