@@ -1,5 +1,40 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ReelOps Studio</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="flow.css"><script src="state.js"></script><script defer src="workflow.js"></script></head><body class="studioPage">
-<div class="startup" id="startup"><div class="startupMark"><div class="startupBeam"></div><div class="startupGrid"></div><div class="startupCore"><div class="r">R</div><div class="word">REELOPS</div><div class="sub">PRODUCTION FIRST · SOFTWARE NEXT</div></div></div><button class="startupSkip" id="skip">跳过</button></div>
-<header class="studioTop"><a href="index.html"><img class="logo-img" src="assets/reelops-logo-crop.png" alt="ReelOps"></a><span class="crumb" style="color:#9ca6b2">Project Aurora / Studio</span><span style="margin-left:auto;font-size:10px;color:#77818c">INTERACTIVE PRODUCT CONCEPT</span></header>
-<div class="studioScene"><main class="studioWorld"><div class="eyebrow" style="color:#77818c">STUDIO OVERVIEW</div><h1 style="font-size:34px;letter-spacing:-.04em;margin:7px 0 8px">同一个项目，不同的生产视角。</h1><p style="color:#aab3bd;max-width:650px;line-height:1.7;margin:0">每个工作区看到的不是一套新数据，而是 Project Aurora 里同一个 SHOT 08、同一批素材和同一个版本状态。</p><div class="studioRoom"><a class="studioZone z1" href="producer.html"><b>制片统筹</b><span>项目现在卡在哪里？</span></a><a class="studioZone z2" href="director.html"><b>导演 / 创意</b><span>这个镜头应该变成什么？</span></a><a class="studioZone z3" href="live-action.html"><b>实拍拍摄</b><span>拍什么，如何与 AI 协作？</span></a><a class="studioZone z4" href="generation.html"><b>AIGC 生成</b><span>哪个结果进入真实生产？</span></a><a class="studioZone z5" href="post.html"><b>后期制作</b><span>当前 Version 由什么组成？</span></a><a class="studioZone z6" href="review.html"><b>客户审阅</b><span>创意审阅 + 成片审阅 · 外部空间</span></a></div></main><aside class="studioSide"><div style="font-size:10px;color:#77818c">CURRENT PROJECT</div><h2 style="font-size:23px;margin:7px 0 0">Project Aurora</h2><div class="stateBlock" style="border-color:rgba(255,255,255,.08)"><b>12 个镜头</b><span style="color:#84909b">6 已确认 · 4 制作中 · 2 待审阅</span></div><div class="stateBlock" style="border-color:rgba(255,255,255,.08)"><b>混合制作</b><span style="color:#84909b">Live Action + AIGC + CG / 后期</span></div><div class="stateBlock" style="border-color:rgba(255,255,255,.08)"><b>创意确认</b><span id="creativeState" style="color:#84909b">Creative Direction V2 · Internal Draft</span></div><div class="stateBlock" style="border-color:rgba(255,255,255,.08)"><b>SHOT 08</b><span id="shotState" style="color:#84909b">V3 · Changes Requested</span></div><div class="studioCard"><div class="eyebrow" style="color:#7e93bd">GOLDEN PATH</div><h3 style="margin:6px 0 5px">导演 / 创意</h3><p style="font-size:11px;color:#9ca6b2;line-height:1.6">从 Brief、Treatment 与 Shot Intent 开始；整理后的创意可以发布到独立 Client Review Space。</p><a class="btn" href="director.html">进入 导演 / 创意 →</a></div><p style="font-size:10px;color:#737e89;line-height:1.6;margin-top:14px">客户审阅空间与内部 Studio 隔离；Creative Approval 与 Version Approval 分开记录。</p></aside></div>
-<script>const s=ReelOpsState.get();document.getElementById('shotState').textContent=ReelOpsState.shotLabel(s);document.getElementById('creativeState').textContent=ReelOpsState.creativeLabel(s);const startup=document.getElementById('startup');let done=false;function finish(){if(done)return;done=true;startup.classList.add('hide')}document.getElementById('skip').onclick=finish;if(matchMedia('(prefers-reduced-motion: reduce)').matches)finish();else setTimeout(finish,2700);</script><button class="demoReset" id="resetDemo">重置演示</button><script>document.getElementById("resetDemo").onclick=()=>{ReelOpsState.reset();location.reload()}</script></body></html>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Project Aurora · ReelOps</title><link rel="stylesheet" href="product-v1.css"><script src="state.js"></script></head><body class="pv1-app">
+<header class="pv1-appbar"><div class="inner"><a href="index.html"><img class="pv1-logo" src="assets/reelops-logo-crop.png" alt="ReelOps"></a><div><div class="project-name">Project Aurora</div><div class="project-meta">30s Campaign Film · Live Action + AIGC</div></div><div class="pv1-spacer"></div><span class="pv1-pill" id="topPhase">Pre-production</span></div></header>
+<div class="pv1-shell">
+  <aside class="pv1-side"><div class="group">PROJECT</div><nav class="pv1-nav"><a class="active" href="studio.html">Overview</a><a href="live-action.html">Production</a><a href="review.html">Review</a><a href="delivery.html">Delivery</a></nav></aside>
+  <main class="pv1-main">
+    <div class="pv1-breadcrumb">Project Aurora / Overview</div>
+    <div class="pv1-pagehead"><div><h1>Project Aurora</h1><p>先看清项目现在在哪里，再进入具体制作。</p></div><span class="pv1-status" id="phaseStatus">Pre-production</span></div>
+    <div class="pv1-progress">
+      <div class="pv1-step current" id="step1"><div class="k">01</div><b>Creative</b></div>
+      <div class="pv1-step" id="step2"><div class="k">02</div><b>Production</b></div>
+      <div class="pv1-step" id="step3"><div class="k">03</div><b>Review</b></div>
+      <div class="pv1-step" id="step4"><div class="k">04</div><b>Delivery</b></div>
+    </div>
+    <div class="pv1-grid">
+      <section class="pv1-panel"><div class="pv1-panel-title">Next action</div><div class="pv1-action"><div class="pv1-kicker" id="nextOwner">DIRECTOR / CREATIVE</div><h2 id="nextTitle">完成 Creative Direction V2</h2><p id="nextCopy">把 Brief、Treatment 与 Shot Direction 整理好后，再提交给客户确认。当前项目不会在创意确认前进入正式制作。</p><a class="pv1-btn blue" id="nextLink" href="director.html">继续创意 →</a></div></section>
+      <aside class="pv1-panel"><div class="pv1-panel-title">Project status</div><div class="pv1-facts"><div class="pv1-fact"><b>Creative Direction</b><span id="creativeState">V2 · Internal Draft</span></div><div class="pv1-fact"><b>SHOT 08 · Hero Reveal</b><span id="shotState">Creative · Internal</span></div><div class="pv1-fact"><b>Client Review</b><span id="clientState">尚未提交</span></div><div class="pv1-fact"><b>Delivery</b><span id="deliveryState">等待正式版本确认</span></div></div></aside>
+    </div>
+    <section class="pv1-panel" style="margin-top:16px"><div class="pv1-panel-title">Shots</div><div class="pv1-shotrow"><div class="pv1-thumb"></div><div><b>SHOT 08 · Hero Reveal</b><p>Live Action + AIGC + CG / Post</p></div><span class="pv1-pill" id="shotPill">Creative · Internal</span></div></section>
+    <div class="pv1-bottom-note">ReelOps 只把当前需要做的事情放到前面；角色、工具和内部细节留在对应工作区。</div>
+  </main>
+</div>
+<script>
+const s=ReelOpsState.get();
+const phase=ReelOpsState.projectPhase(s);document.getElementById('topPhase').textContent=phase;document.getElementById('phaseStatus').textContent=phase;
+document.getElementById('creativeState').textContent=ReelOpsState.creativeLabel(s).replace('Creative Direction ','');
+const shot=ReelOpsState.shotLabel(s);document.getElementById('shotState').textContent=shot;document.getElementById('shotPill').textContent=shot;
+function nextAction(){
+ if(!s.creativeSubmitted)return ['DIRECTOR / CREATIVE','完成 Creative Direction V2','把 Brief、Treatment 与 Shot Direction 整理好后，再提交给客户确认。当前项目不会在创意确认前进入正式制作。','director.html','继续创意 →'];
+ if(!s.creativeApproval)return ['CLIENT REVIEW','等待客户确认创意方向','客户只看到已经发布的创意内容。确认后，项目才进入正式制作。','review.html?stage=creative','进入客户审阅 →'];
+ if(!s.packageSent)return ['PRODUCTION','准备 SHOT 08 制作','完成实拍与 AI Ready，并把正式制作包发送给生成环节。','live-action.html','进入制作 →'];
+ if(!s.genAsset)return ['AIGC','选择进入制作的 Asset','从生成结果里选择真正进入 SHOT 08 的素材。','generation.html','进入 AIGC →'];
+ if(!s.v3Submitted)return ['POST','形成并提交正式版本','先建立 Working Composite，再把正式 V3 提交客户。','post.html','进入后期 →'];
+ if(!s.approval)return ['CLIENT REVIEW','等待正式版本决策','所有正式反馈都绑定当前 Version；确认后再进入交付。','review.html?stage=versions','进入版本审阅 →'];
+ return ['DELIVERY','完成项目交付','生成 Final Master，准备交付文件并形成 Delivery Record。','delivery.html','进入交付 →'];
+}
+const a=nextAction();document.getElementById('nextOwner').textContent=a[0];document.getElementById('nextTitle').textContent=a[1];document.getElementById('nextCopy').textContent=a[2];document.getElementById('nextLink').href=a[3];document.getElementById('nextLink').textContent=a[4];
+document.getElementById('clientState').textContent=s.approval?'正式版本已确认':s.v3Submitted||s.v4Submitted?'等待版本决策':s.creativeApproval?'创意已确认':s.creativeSubmitted?'等待创意确认':'尚未提交';
+document.getElementById('deliveryState').textContent=s.delivered?'已交付':s.approval?'待准备交付':'等待正式版本确认';
+const order={"Pre-production":1,"Production":2,"Review":3,"Approved":4,"Delivery":4,"Archived":4};const active=order[phase]||1;for(let i=1;i<=4;i++){const el=document.getElementById('step'+i);el.classList.toggle('current',i===active);el.classList.toggle('done',i<active)}
+</script></body></html>
